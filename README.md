@@ -136,4 +136,4 @@ node src/cloudscribe.js examples/update_system.csc
 - **Course:** CMSI 3802 – Languages & Automata II
 - **Semester:** Spring 2025
 - **Instructor:** Professor Ray Toal
-- **Student and Creator:** Patrick King
+- **Development Team:** Patrick King and Thomas Powell

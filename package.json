@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test"
   },
-  "author": "Patrick King",
+  "author": "Patrick King and Thomas Powell",
   "license": "MIT",
   "dependencies": {
     "fs": "^0.0.1-security",
