@@ -1,0 +1,51 @@
+CloudScribe {
+  Program        = Statement+
+
+  Statement
+    = Assignment
+    | Command
+    | IfStatement
+    | LoopStatement
+    | PrintStatement
+
+  Assignment     = id "=" Exp ";"
+  Command        = id "(" ExpList ")" ";"
+  IfStatement
+    = "if" Exp Block "else" Block   -- ifElse
+    | "if" Exp Block               -- ifOnly
+  LoopStatement  = "for" id "in" (range_exp | list_exp | id) Block
+  PrintStatement = "print" Exp ";"
+
+  Block          = "{" Statement* "}"
+
+  Exp
+    = Exp "==" Exp       -- equality
+    | Exp "+" Exp        -- addition
+    | Exp "-" Exp        -- subtraction
+    | Exp "*" Exp        -- multiplication
+    | Exp "/" Exp        -- division
+    | "(" Exp ")"        -- grouping
+    | range_exp
+    | list_exp
+    | id
+    | str_lit
+    | num_lit
+
+  range_exp      = "range" "(" num_lit "," num_lit ")"
+  
+  list_exp
+    = "[" item ("," item)* "]"
+  
+  item
+    = str_lit
+    | num_lit
+
+  ExpList        = Exp ("," Exp)*
+
+  id             = letter (letter | digit | "_")*
+  str_lit        = "\"" (~"\"" any)* "\""
+  num_lit        = digit+ ("." digit+)? 
+
+  space += " " | "\t" | "\n" | comment
+  comment = "//" (~"\n" any)*
+}

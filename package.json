@@ -1,0 +1,15 @@
+{
+  "name": "cloudscribe",
+  "version": "1.0.0",
+  "description": "A scripting language for IT automation, cloud management, and system administration.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "author": "Patrick King",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "ohm-js": "^17.1.0"
+  }
+}
