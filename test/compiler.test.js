@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test from 'node:test';
-import { cloudScribeGrammar } from '../src/cloudscribe.js'; // ✅ Importing grammar
+import { cloudScribeGrammar } from '../src/cloudscribe.js'; // Importing grammar
 
 // Create semantics for evaluation
 const semantics = cloudScribeGrammar.createSemantics();
@@ -30,7 +30,7 @@ semantics.addOperation('eval', {
   }
 });
 
-// ✅ Test Cases
+// Test Cases
 test('CloudScribe Compiler - Assignment Test', () => {
   const match = cloudScribeGrammar.match('x = 5 + 3;');
   assert.ok(match.succeeded(), 'Parsing failed for assignment');
