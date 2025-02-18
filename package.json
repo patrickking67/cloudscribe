@@ -1,6 +1,6 @@
 {
   "name": "cloudscribe",
-  "version": "1.0.0",
+  "version": "1.1",
   "description": "A scripting language for IT automation, cloud management, and system administration.",
   "type": "module",
   "scripts": {
@@ -9,7 +9,9 @@
   "author": "Patrick King and Thomas Powell",
   "license": "MIT",
   "dependencies": {
-    "fs": "^0.0.1-security",
     "ohm-js": "^17.1.0"
+  },
+  "devDependencies": {
+    "c8": "^10.1.3"
   }
 }

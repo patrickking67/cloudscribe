@@ -1,3 +1,2 @@
 ohm-js
-fs
 node
