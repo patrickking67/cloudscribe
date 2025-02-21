@@ -136,7 +136,7 @@ cd cloudscribe
 npm install
 ```
 
-### **3. Test CloudScibre**
+### **3. Test CloudScribe**
 
 ```sh
 npm test
