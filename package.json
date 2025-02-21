@@ -1,14 +1,25 @@
 {
   "name": "cloudscribe",
-  "version": "1.1",
+  "version": "2.1",
   "description": "A scripting language for IT automation, cloud management, and system administration.",
+  "main": "cloudscribe.js",
   "type": "module",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  },
   "scripts": {
-    "test": "node --test"
+    "test": "c8 node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrickgking03/cloudscribe.git"
   },
   "author": "Patrick King and Thomas Powell",
   "license": "MIT",
   "dependencies": {
+    "graph-stringify": "^1.1.0",
     "ohm-js": "^17.1.0"
   },
   "devDependencies": {

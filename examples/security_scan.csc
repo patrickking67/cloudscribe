@@ -1,14 +1,18 @@
-// Start security scan
-print "Starting security scan...";
-
-// Define ports as a list of numbers
-ports = [80,443,8080];
-
-// Scan each port
-for port in ports {
-    print "Scanning port: " + port;
-    scan(port);
+function scanPort(port: int): boolean {
+  return true;
 }
 
-// Scan completed
-print "Security scan completed!";
+task securityScan {
+  let ports = [80, 443, 22];
+  let threats = 0;
+  
+  print("Starting security scan");
+  
+  for port in ports {
+    if scanPort(port) {
+      print("Port " + port + " is secure");
+    } else {
+      threats++;
+    }
+  }
+}

@@ -1,51 +1,102 @@
 CloudScribe {
-  Program        = Statement+
+  Program     = Statement+
 
-  Statement
-    = Assignment
-    | Command
-    | IfStatement
-    | LoopStatement
-    | PrintStatement
+  Statement   = VarDecl
+              | FunDecl
+              | Primary "++" ";"            --increment
+              | Primary "--" ";"            --decrement
+              | Exp ";"                     --exp
+              | break ";"                   --break
+              | return Exp ";"              --return
+              | return ";"                  --shortreturn
+              | IfStmt
+              | LoopStmt
+              | TaskDecl
 
-  Assignment     = id "=" Exp ";"
-  Command        = id "(" ExpList ")" ";"
-  IfStatement
-    = "if" Exp Block "else" Block   -- ifElse
-    | "if" Exp Block               -- ifOnly
-  LoopStatement  = "for" id "in" (range_exp | list_exp | id) Block
-  PrintStatement = "print" Exp ";"
+  VarDecl     = (let | const) id "=" Exp ";"
+  FunDecl     = function id Params (":" Type)? Block
+  TaskDecl    = task id Block
+  Params      = "(" ListOf<Param, ","> ")"
+  Param       = id ":" Type
 
-  Block          = "{" Statement* "}"
+  Type        = Type "?"                     --optional
+              | "[" Type "]"                 --array
+              | "(" ListOf<Type, ","> ")" "->" Type  --function
+              | id                           --id
 
-  Exp
-    = Exp "==" Exp       -- equality
-    | Exp "+" Exp        -- addition
-    | Exp "-" Exp        -- subtraction
-    | Exp "*" Exp        -- multiplication
-    | Exp "/" Exp        -- division
-    | "(" Exp ")"        -- grouping
-    | range_exp
-    | list_exp
-    | id
-    | str_lit
-    | num_lit
+  IfStmt      = if Exp Block else Block      --long
+              | if Exp Block                 --short
+  LoopStmt    = for id "in" Exp Block        --collection
+              | while Exp Block              --while
+  Block       = "{" Statement* "}"
 
-  range_exp      = "range" "(" num_lit "," num_lit ")"
-  
-  list_exp
-    = "[" item ("," item)* "]"
-  
-  item
-    = str_lit
-    | num_lit
+  Exp         = Exp1 "?" Exp1 ":" Exp        --conditional
+              | Exp1
+  Exp1        = Exp1 "??" Exp2               --unwrapelse
+              | Exp2
+  Exp2        = Exp2 "||" Exp3               --or
+              | Exp3 
+  Exp3        = Exp3 "&&" Exp4               --and
+              | Exp4
+  Exp4        = Exp4 ("|" Exp5)+             --bitor
+              | Exp5
+  Exp5        = Exp5 ("^" Exp6)+             --bitxor
+              | Exp6
+  Exp6        = Exp6 ("&" Exp7)+             --bitand
+              | Exp7
+  Exp7        = Exp7 ("<="|"<"|"=="|"!="|">="|">") Exp8  --compare
+              | Exp8
+  Exp8        = Exp8 ("+" | "-") Exp9        --add
+              | Exp9
+  Exp9        = Exp9 ("*"| "/" | "%") Exp10   --multiply
+              | Exp10
+  Exp10       = Exp10 "**" Exp11              --power
+              | Exp11
+  Exp11       = ("-" | "!" | some) Exp11     --unary
+              | Primary
+  Primary     = true ~mut
+              | false ~mut
+              | floatlit ~mut
+              | intlit ~mut
+              | Primary ("(" ListOf<Exp, ","> ")") ~mut  --call
+              | Primary ("[" Exp "]")          --subscript
+              | Primary ("." id)               --member
+              | stringlit ~mut
+              | id                            --id
+              | "[" ListOf<Exp, ","> "]" ~mut --arrayexp
+              | "(" Exp ")" ~mut              --parens
 
-  ExpList        = Exp ("," Exp)*
+  intlit      = digit+
+  floatlit    = digit+ "." digit+ (("E" | "e") ("+" | "-")? digit+)?
+  stringlit   = "\"" char* "\""
+  char        = ~control ~"\\" ~"\"" any
+              | "\\" ("n" | "t" | "\"" | "\\") --escape
+              | "\\u{" hex hex? hex? hex? hex? hex? "}" --codepoint
+  control     = "\x00".."\x1f" | "\x80".."\x9f"
+  hex         = hexDigit
+  mut         = ~"==" "=" | "++" | "--"
 
-  id             = letter (letter | digit | "_")*
-  str_lit        = "\"" (~"\"" any)* "\""
-  num_lit        = digit+ ("." digit+)? 
+  let         = "let" ~alnum
+  const       = "const" ~alnum
+  function    = "function" ~alnum
+  task        = "task" ~alnum
+  install     = "install" ~alnum
+  update      = "update" ~alnum
+  scan        = "scan" ~alnum
+  restart     = "restart" ~alnum
+  if          = "if" ~alnum
+  else        = "else" ~alnum
+  while       = "while" ~alnum
+  for         = "for" ~alnum
+  in          = "in" ~alnum
+  break       = "break" ~alnum
+  return      = "return" ~alnum
+  some        = "some" ~alnum
+  no          = "no" ~alnum
+  true        = "true" ~alnum
+  false       = "false" ~alnum
+  keyword     = let | const | function | task | if | else | while | for | in | break | return | install | update | scan | restart | some | no | true | false
+  id          = ~keyword letter alnum*
 
-  space += " " | "\t" | "\n" | comment
-  comment = "//" (~"\n" any)*
+  space      += "//" (~"\n" any)*  --comment
 }
