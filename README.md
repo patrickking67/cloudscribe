@@ -12,10 +12,10 @@ I work in IT and wanted to create a language that blends the simplicity of Pytho
 
 - **Simple and Readable Syntax** – Easy-to-understand scripting style, combining Python and PowerShell principles.
 - **IT Automation** – Automate tasks like software installation, system updates, and security scans.
-- **Built-in Commands** – Perform operations like `install()`, `scan()`, and `restart()`.
-- **Flow Control** – Supports loops (`for`) and conditional statements (`if`, `else`).
+- **Flow Control** – Supports loops (`for`, `while`) and conditional statements (`if`, `else`).
 - **String & Number Operations** – Handle variables, arithmetic, and concatenation effortlessly.
 - **List Handling** – Define and iterate over lists with built-in syntax.
+- **Print Function** - Built-in print functionality for output and debugging.
 - **Cross-Platform** – Works on Windows, macOS, and Linux.
 
 ## Example Programs
