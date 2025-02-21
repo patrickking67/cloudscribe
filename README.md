@@ -23,71 +23,100 @@ I work in IT and wanted to create a language that blends the simplicity of Pytho
 ### **Generating a System Report**
 
 ```csc
-print "Generating system report...";
-
-for section in range(1,5) {
-    print "Processing report section: " + section;
+task generateReport {
+  let output = "System Status Report";
+  
+  function formatHeader(text: string): string {
+    return "--" + text + "--";
+  }
+  
+  print(formatHeader(output));
+  print("Memory: 85%");
+  print("CPU: 45%");
+  print("Disk: 60%");
 }
-
-print "Report generation complete!";
 ```
 
 ### **Installing Software**
 
 ```csc
-print "Starting software installation...";
-
-packages = ["app1","app2","app3"];
-
-for pkg in packages {
-    install(pkg);
+function validateVersion(ver: string): boolean {
+  return true;
 }
 
-print "All software installed successfully!";
+task installSoftware {
+  let package = "CloudSuite";
+  let version = "2.1.0";
+  
+  print("Installing " + package);
+  
+  if validateVersion(version) {
+    print("Version " + version + " validated");
+  } else {
+    print("Invalid version");
+    return;
+  }
+}
 ```
 
 ### **Restarting System**
 
 ```csc
-print "Attempting system restart...";
+task restartSystem {
+  let services = ["web", "database", "cache"];
+  let success = true;
 
-restart("immediate");
-
-print "System restart requested.";
+  print("Starting system restart");
+  
+  for service in services {
+    if success {
+      print("Restarting: " + service);
+    } else {
+      break;
+    }
+  }
+}
 ```
 
 ### **Security Scanning**
 
 ```csc
-print "Starting security scan...";
-
-ports = [80,443,8080];
-
-for port in ports {
-    print "Scanning port: " + port;
-    scan(port);
+function scanPort(port: int): boolean {
+  return true;
 }
 
-print "Security scan completed!";
+task securityScan {
+  let ports = [80, 443, 22];
+  let threats = 0;
+  
+  print("Starting security scan");
+  
+  for port in ports {
+    if scanPort(port) {
+      print("Port " + port + " is secure");
+    } else {
+      threats++;
+    }
+  }
+}
 ```
 
 ### **Updating System**
 
 ```csc
-print "Beginning system update...";
+task updateSystem {
+  let components = ["OS", "Drivers", "Apps"];
+  let updateCount = 0;
 
-if 2 == 3 {
-    print "Condition was true (unexpected)!";
-} else {
-    print "Condition was false, continuing updates...";
+  print("System Update Starting");
+  
+  for component in components {
+    print("Updating: " + component);
+    updateCount++;
+  }
+  
+  print("Updated " + updateCount + " components");
 }
-
-for step in range(1,2) {
-    print "Performing update step: " + step;
-    update(step);
-}
-
-print "System update completed!";
 ```
 
 
@@ -103,31 +132,14 @@ cd cloudscribe
 
 ### **2. Install Dependencies**
 
-Ensure you have Python and Node.js installed, then run:
-
 ```sh
-pip install -r requirements.txt
 npm install
 ```
 
-### **3. Run a CloudScribe Program**
-
-To execute a `.csc` script:
+### **3. Test CloudScibre**
 
 ```sh
-node src/cloudscribe.js examples/generate_report.csc
-```
-```sh
-node src/cloudscribe.js examples/install_software.csc
-```
-```sh
-node src/cloudscribe.js examples/restart_system.csc
-```
-```sh
-node src/cloudscribe.js examples/security_scan.csc
-```
-```sh
-node src/cloudscribe.js examples/update_system.csc
+npm test
 ```
 
 ## Class Information
