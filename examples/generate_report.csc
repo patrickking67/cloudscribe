@@ -1,10 +1,12 @@
-// Start report generation
-print "Generating system report...";
-
-// Iterate directly using range
-for section in range(1,5) {
-    print "Processing report section: " + section;
+task generateReport {
+  let output = "System Status Report";
+  
+  function formatHeader(text: string): string {
+    return "--" + text + "--";
+  }
+  
+  print(formatHeader(output));
+  print("Memory: 85%");
+  print("CPU: 45%");
+  print("Disk: 60%");
 }
-
-// Report completed
-print "Report generation complete!";

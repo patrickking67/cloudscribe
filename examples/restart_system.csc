@@ -1,8 +1,14 @@
-// Restart the system
-print "Attempting system restart...";
+task restartSystem {
+  let services = ["web", "database", "cache"];
+  let success = true;
 
-// Execute the restart command with one argument
-restart("immediate");
-
-// Confirm done
-print "System restart requested.";
+  print("Starting system restart");
+  
+  for service in services {
+    if success {
+      print("Restarting: " + service);
+    } else {
+      break;
+    }
+  }
+}
