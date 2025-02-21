@@ -1,0 +1,102 @@
+import * as ohm from "ohm-js"
+// --------------------------
+// 1. Define the grammar source as a string
+// --------------------------
+const grammarSource = `
+Question2Language {
+    Program
+      = Decl* Expression
+  
+    // -- Declarations -----------------------------------------
+    Decl
+      = "func" Identifier "(" ParamList? ")" Body "end"
+  
+    Body
+      = Expression ( ";" Expression )+
+  
+    ParamList
+      = Identifier ("," Identifier)*
+  
+    // -- Expressions (highest-level expression) ----------------
+    Expression
+      = Conditional
+  
+    Conditional
+      = AddExp ("if" AddExp "else" Expression)?
+  
+    AddExp
+      = AddExp "+" MulExp  -- plus
+      | AddExp "-" MulExp  -- minus
+      | MulExp
+  
+    MulExp
+      = MulExp "*" Unary  -- times
+      | MulExp "/" Unary  -- divide
+      | Unary
+  
+    Unary
+      = "-" Unary         -- neg
+      | Factor
+  
+    Factor
+      = Factor "!"        -- factorial
+      | Primary
+  
+    Primary
+      = NumericLiteral
+      | StringLiteral
+      | FunctionCall
+      | Identifier
+      | "(" Expression ")"
+  
+    FunctionCall
+      = Identifier "[" ArgList? "]"
+  
+    ArgList
+      = Expression ("," Expression)*
+  
+    // -- Lexical forms -----------------------------------------
+    NumericLiteral
+      = digit+ ("." digit+)? Exp?
+  
+    Exp
+      = ( "e" | "E" ) ("+" | "-")? digit+
+  
+    StringLiteral
+      = "\"" StringContent* "\""
+  
+    StringContent
+      = EscapeSeq
+      | ~( ')"""' | '\\' ) any
+  
+    EscapeSeq
+      = "\\" ( "\""     -- \"
+              | "'"     -- \'
+              | "\\"    -- \\
+              | "n"     -- \n
+              | UBlock
+              )
+  
+    UBlock
+      = "u" "{" Hex{1,6} "}"
+  
+    Hex
+      = digit
+      | "a".."f"
+      | "A".."F"
+  
+    Identifier
+      = ~Reserved
+        ( (letter | "@") ( letter | digit | "_" | "@" | "$" )* )
+  
+    Reserved
+      = "func" | "end" | "if" | "else"
+  
+  
+    comment := "--" (~"\n" any)*     -- from '--' to end of line
+    space := " " | "\t" | "\n" | "\r"
+    space += comment
+  }
+  
+  
+`;
