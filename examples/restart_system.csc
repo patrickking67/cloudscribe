@@ -3,7 +3,7 @@ task restartSystem {
   let success = true;
 
   print("Starting system restart");
-  
+
   for service in services {
     if success {
       print("Restarting: " + service);

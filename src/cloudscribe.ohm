@@ -5,6 +5,7 @@ CloudScribe {
               | FunDecl
               | Primary "++" ";"            --increment
               | Primary "--" ";"            --decrement
+              | Primary "=" Exp ";"         --assign
               | Exp ";"                     --exp
               | break ";"                   --break
               | return Exp ";"              --return
