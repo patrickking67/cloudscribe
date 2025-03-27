@@ -5,9 +5,9 @@ function validateVersion(ver: string): boolean {
 task installSoftware {
   let package = "CloudSuite";
   let version = "2.1.0";
-  
+
   print("Installing " + package);
-  
+
   if validateVersion(version) {
     print("Version " + version + " validated");
   } else {
