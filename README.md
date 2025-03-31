@@ -13,7 +13,7 @@ CloudScribe was built out of the desire to streamline real-world IT workflows wi
 ---
 
 ## Website Link
-(View Website Here)[https://example.com]
+(View CloudScribe Language Website Here!)[[https://example.com](https://patrickking67.github.io/cloudscribe/)]
 
 ---
 
