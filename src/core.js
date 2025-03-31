@@ -104,7 +104,6 @@ export function forStatement(iterator, collection, body) {
 }
 
 export function arrayExpression(elements) {
-  // Simplified to ensure coverage
   const baseType = elements.length > 0 ? elements[0].type : anyType;
   return { 
     kind: "ArrayExpression", 
@@ -135,14 +134,12 @@ export function memberExpression(object, field) {
   return { kind: "MemberExpression", object, field, type: object.type || anyType }
 }
 
-// The basic types
 export const intType = "int"
 export const stringType = "string"
 export const booleanType = "boolean"
 export const voidType = "void"
 export const anyType = "any"
 
-// Standard library
 export const standardLibrary = Object.freeze({
   print: {
     kind: "Function",
@@ -152,7 +149,6 @@ export const standardLibrary = Object.freeze({
   }
 })
 
-// Attach types to JavaScript primitives for easier type checking
 Number.prototype.type = intType
 String.prototype.type = stringType
 Boolean.prototype.type = booleanType
