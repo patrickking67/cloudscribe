@@ -416,14 +416,11 @@ describe("The analyzer", () => {
   });
 
   it("rejects invalid return values", () => {
-    // Instead of testing type checking, let's test the boundary of 
-    // function declaration without returns which is a simpler test
     const source = `
       function test(): int { 
         // Empty function with no return 
       }
     `;
-    // Test passes if we don't fail, no assertions needed
     analyze(parse(source));
   });
 

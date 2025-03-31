@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CloudScribe Language</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <img src="logo.svg" alt="CloudScribe Logo" class="logo" />
+    <h1>CloudScribe</h1>
+    <p class="tagline">A scripting language for IT automation</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#examples">Examples</a></li>
+      <li><a href="#errors">Static Errors</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="https://github.com/patrickking67/cloudscribe" target="_blank">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="about">
+      <h2>About the Language</h2>
+      <p>CloudScribe is a statically typed scripting language designed for IT professionals and system administrators. Inspired by Python's simplicity and PowerShell's utility, CloudScribe enables users to automate infrastructure operations with clean, readable syntax and compile-time safety.</p>
+      <p>The language supports a task-based scripting paradigm with powerful control structures, strong type checking, and first-class functions. With rich support for expressions and semantic-level validation, CloudScribe is ideal for writing scripts that are both reliable and maintainable.</p>
+      <p>CloudScribe was built out of the desire to streamline real-world IT workflows without sacrificing expressiveness or safety.</p>
+    </section>
+
+    <section id="examples">
+      <h2>Example Programs</h2>
+
+      <h3>1. Backup Data</h3>
+      <pre><code>function backupFile(filename: string): boolean {
+  print("Backing up: " + filename);
+  return true;
+}
+
+task backupData {
+  let files = ["config.json", "users.db", "logs.txt"];
+  let failedCount = 0;
+  print("Starting backup process");
+  for file in files {
+    if backupFile(file) {
+      print("Successfully backed up " + file);
+    } else {
+      print("Failed to backup " + file);
+      failedCount++;
+    }
+  }
+  if failedCount > 0 {
+    print("Backup completed with " + failedCount + " failures");
+  } else {
+    print("Backup completed successfully");
+  }
+}</code></pre>
+
+      <h3>2. Generate Report</h3>
+      <pre><code>task generateReport {
+  let output = "System Status Report";
+  function formatHeader(text: string): string {
+    return "--" + text + "--";
+  }
+  print(formatHeader(output));
+  print("Memory: 85%");
+  print("CPU: 45%");
+  print("Disk: 60%");
+}</code></pre>
+
+      <h3>3. Install Software</h3>
+      <pre><code>function validateVersion(ver: string): boolean {
+  return true;
+}
+
+task installSoftware {
+  let package = "CloudSuite";
+  let version = "2.1.0";
+  print("Installing " + package);
+  if validateVersion(version) {
+    print("Version " + version + " validated");
+  } else {
+    print("Invalid version");
+    return;
+  }
+}</code></pre>
+
+      <h3>4. Security Scan</h3>
+      <pre><code>function scanPort(port: int): boolean {
+  return true;
+}
+
+task securityScan {
+  let ports = [80, 443, 22];
+  let threats = 0;
+  print("Starting security scan");
+  for port in ports {
+    if scanPort(port) {
+      print("Port " + port + " is secure");
+    } else {
+      threats++;
+    }
+  }
+}</code></pre>
+
+      <h3>5. Update System</h3>
+      <pre><code>task updateSystem {
+  let components = ["OS", "Drivers", "Apps"];
+  let updateCount = 0;
+  print("System Update Starting");
+  for component in components {
+    print("Updating: " + component);
+    updateCount++;
+  }
+  print("Updated " + updateCount + " components");
+}</code></pre>
+    </section>
+
+    <section id="errors">
+      <h2>Static Semantic Errors Checked</h2>
+      <ul>
+        <li>🛑 Redeclaring an already-declared variable</li>
+        <li>🛑 Using an undeclared variable</li>
+        <li>🛑 Using a non-boolean in a conditional expression</li>
+        <li>🛑 Using a non-array in a <code>for in</code> loop</li>
+        <li>🛑 Using <code>break</code> outside of a loop</li>
+        <li>🛑 Using <code>return</code> outside of a function or task</li>
+        <li>🛑 Assigning to an immutable <code>const</code> variable</li>
+        <li>🛑 Incrementing/decrementing non-integer values</li>
+        <li>🛑 Accessing arrays with non-integer indices</li>
+        <li>🛑 Incorrect argument count in function calls</li>
+        <li>🛑 Calling values that are not functions</li>
+        <li>🛑 Type mismatches in binary and unary operations</li>
+        <li>🛑 Invalid operands for arithmetic and logical expressions</li>
+      </ul>
+    </section>
+
+    <section id="team">
+      <h2>Meet the Developers</h2>
+      <div class="bios">
+        <div class="bio">
+          <h3>Patrick King</h3>
+          <p>Computer Science Major and Business Administration Minor at Loyola Marymount University, Class of 2025. Patrick is passionate about IT consulting and infrastructure tooling. Outside of tech, he enjoys music and performance.</p>
+        </div>
+        <div class="bio">
+          <h3>Thomas Powell</h3>
+          <p>Computer Science Major at Loyola Marymount University. Thomas is a backend development enthusiast who enjoys working on compilers and robust server-side systems. Big fan of football and clean code.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Created by Patrick King and Thomas Powell • © 2025 CloudScribe • <a href="https://github.com/patrickking67/cloudscribe">View on GitHub</a></p>
+  </footer>
+</body>
+</html>

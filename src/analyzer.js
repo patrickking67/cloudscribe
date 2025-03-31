@@ -319,9 +319,6 @@ export default function analyze(match) {
       const operator = op.sourceString
       
       if (operator === "+") {
-        // For addition: 
-        // 1. If either operand is a string, result is a string (concatenation)
-        // 2. If both are integers, result is an integer (addition)
         if (left.type === core.stringType || right.type === core.stringType) {
           return core.binary(operator, left, right, core.stringType)
         } else if (left.type === core.intType && right.type === core.intType) {
