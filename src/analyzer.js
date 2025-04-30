@@ -1,4 +1,3 @@
-// analyzer.js
 import * as core from "./core.js"
 
 class Context {
@@ -32,7 +31,6 @@ class Context {
 export default function analyze(match) {
   let context = Context.root()
 
-  // Error checking utility
   function must(condition, message, errorLocation) {
     if (!condition) {
       const prefix = errorLocation.at.source.getLineAndColumnMessage()
@@ -40,7 +38,6 @@ export default function analyze(match) {
     }
   }
 
-  // Type checking utilities
   function mustNotAlreadyBeDeclared(name, at) {
     must(!context.lookup(name), `Identifier ${name} already declared`, at)
   }
@@ -84,7 +81,6 @@ export default function analyze(match) {
       `Wrong number of arguments: expected ${expected}, got ${args.length}`, at)
   }
 
-  // Build the semantic representation
   const builder = match.matcher.grammar.createSemantics().addOperation("rep", {
     Program(statements) {
       return core.program(statements.children.map(s => s.rep()))
@@ -330,7 +326,6 @@ export default function analyze(match) {
           )
         }
       } else {
-        // For subtraction, operands must be numbers
         must(
           left.type === core.intType && right.type === core.intType,
           `Expected ${core.intType} for '-' operation`,
@@ -345,21 +340,18 @@ export default function analyze(match) {
       const right = exp2.rep()
       
       if (op.sourceString === "*") {
-        // Multiplication needs same type check
         must(
           left.type === core.intType && right.type === core.intType,
           `Expected ${core.intType} for '*' operation`,
           { at: exp2 }
         )
       } else if (op.sourceString === "/") {
-        // Division needs same type check
         must(
           left.type === core.intType && right.type === core.intType,
           `Expected ${core.intType} for '/' operation`,
           { at: exp2 }
         )
       } else {
-        // Modulo needs integer operands
         must(
           left.type === core.intType && right.type === core.intType,
           `Expected ${core.intType} for '%' operation`,
@@ -374,7 +366,6 @@ export default function analyze(match) {
       const left = exp1.rep()
       const right = exp2.rep()
       
-      // Power operator needs integer operands
       must(
         left.type === core.intType && right.type === core.intType,
         `Expected ${core.intType} for '**' operation`,
