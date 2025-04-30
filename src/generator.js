@@ -1,23 +1,19 @@
-// src/generator.js
 import { voidType } from "./core.js";
 
 export default function generate(program) {
   const out = [];
-  // map from entity name (string) → smallest suffix
   const map = new Map();
-
-  // e.name → "foo_0", "foo_1", ...
   const jsName = e => {
     const nm = e.name;
     if (!map.has(nm)) map.set(nm, map.size);
     return `${nm}_${map.get(nm)}`;
   };
 
-  // expressions → string
+  // expressions
   function exp(e) {
     if (e == null) return "";
     if (typeof e === "number" || typeof e === "boolean") return e.toString();
-    if (typeof e === "string") return e;  // already quoted
+    if (typeof e === "string") return e;
     if (e.name) return jsName(e);
 
     switch (e.kind) {
@@ -32,14 +28,13 @@ export default function generate(program) {
       case "MemberExpression":
         return `${exp(e.object)}.${e.field}`;
       case "ArrayExpression":
-        // space after comma to satisfy "[1, 2, 3]" test
         return `[${e.elements.map(exp).join(", ")}]`;
       default:
         throw new Error(`generator exp: unhandled expression kind ${e.kind}`);
     }
   }
 
-  // statements → emit into out[]
+  // statements
   function gen(node) {
     switch (node.kind) {
       case "Program":
@@ -47,7 +42,6 @@ export default function generate(program) {
         break;
 
       case "VariableDeclaration":
-        // ensure initializer names are registered first
         const initCode = exp(node.initializer);
         const varName = jsName(node.variable);
         out.push(`let ${varName} = ${initCode};`);
@@ -92,7 +86,6 @@ export default function generate(program) {
       case "FunctionDeclaration": {
         const f = node.fun;
         const fnName = jsName(f);
-        // now map each param by its name
         const params = f.params.map(p => jsName(p));
         out.push(`function ${fnName}(${params.join(", ")}) {`);
         f.body.forEach(gen);

@@ -1,12 +1,9 @@
-// analyzer.test.js
-
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import parse from "../src/parser.js"
 import analyze from "../src/analyzer.js"
-import { program, variableDeclaration, variable, binary, intType, booleanType, stringType, anyType } from "../src/core.js"
+import { program, variableDeclaration, variable, binary, intType, booleanType, stringType } from "../src/core.js"
 
-// Programs that are semantically correct
 const semanticChecks = [
   ["variable declarations", 'let x = 1; let y = "hello";'],
   ["task declaration", "task example { let x = 1; print(x); }"],
