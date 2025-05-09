@@ -1,16 +1,11 @@
-        .globl  f
-f:                                      ; int f(int n)
-                                        ; System‑V AMD64:  n arrives in RDI
-        test    dil, 1                  ; ZF=1  ⇔  even (n & 1 == 0)
-        jne     .Lodd                   ; jump to odd branch if bit 0 is 1
+f:                             ; int f(int n)   (n in RDI)
+        mov     ecx, edi       ; ECX = n
+        sar     ecx, 1         ; ECX = n/2  (arithmetic >>)
 
-        ; -------- even branch: result = n / 2 ------------------------------
-        mov     eax, edi                ; EAX = n
-        shr     eax, 31                 ; 0 or 1  ← signBit(n)
-        add     eax, edi                ; n + signBit
-        sar     eax, 1                  ; arithmetic >>1  ⇒  truncate‑toward‑0
-        ret
+        test    dil, 1         ; set ZF=1 if n even
 
-.Lodd:  ; -------- odd branch: result = 3*n + 1 -----------------------------
-        lea     eax, [rdi + rdi*2 + 1]  ; EAX = 3*n + 1   (LEA = free MADD)
-        ret
+        lea     eax, [rdi+rdi*2+1] ; EAX = 3*n + 1  (odd case)
+
+        cmove   eax, ecx       ; if even (ZF==1) -> EAX = n/2
+
+        ret                    ; return in EAX
