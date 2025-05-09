@@ -1,0 +1,63 @@
+goal
+--
+show  EQ_TM  is undecidable by reducing the halting problem to it.
+
+known already
+---
+HALT_TM = { ⟨M, w⟩ | M halts on input w } is undecidable
+
+reduction outline
+---
+Given any pair ⟨M, w⟩ we build two new turing machines M1 and M2 such that
+
+        L(M1) = L(M2)     <->     M halts on w .
+
+If we had a decider for EQ_TM we could decide HALT_TM, contradicting the
+known undecidability of HALT_TM; therefore EQ_TM itself must be undecidable
+
+construction of M1 and M2
+---
+Σ is any fixed input alphabet (use the same one for every machine)
+
+1.   M2   -- the accept‑all machine
+     ---
+     On any input x:   ACCEPT.
+     Hence  L(M2) = Σ*  for sure.
+
+2.   M1   -- turns the halting behaviour of M on w into its own language
+     ---
+     on any input x:
+
+        simulate M on w
+        • If M ever halts (accepts OR rejects), then ACCEPT x.
+        • If M never halts, loop forever (i.e. reject by non‑termination).
+
+     Consequently
+        – If M halts on w, M1 accepts every x      ⇒ L(M1) = Σ*
+        – If M does not halt on w, M1 accepts none ⇒ L(M1) = ∅
+
+     So indeed   L(M1) = L(M2)  ⇔  M halts on w
+
+The mapping
+---
+f(⟨M, w⟩)  =  ⟨M1⟩⟨M2⟩
+is clearly Turing‑computable: we can write out the code for M1 (it contains a
+hard‑wired copy of ⟨M⟩ and w) and for the trivial accept‑all M2
+
+Using the hypothetical decider for EQ_TM
+---
+Suppose D_EQ is a decider for EQ_TM.  We can decide HALT_TM as follows:
+
+    On input ⟨M, w⟩
+        1. Construct ⟨M1⟩⟨M2⟩ as above.
+        2. Run D_EQ on that pair.
+        3. If D_EQ says “equal”  →  ACCEPT   (M halts on w)
+           else                 →  REJECT   (M does not halt on w)
+
+Because step 1 is computable and D_EQ is assumed total, the whole
+procedure is a decider for HALT_TM — a contradiction
+
+conclusion
+---
+EQ_TM must be undecidable.  If it were decidable, the halting problem would
+be decidable too, which we know is impossible
