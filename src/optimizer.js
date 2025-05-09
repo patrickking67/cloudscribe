@@ -69,7 +69,7 @@ const visitors = {
     return core.variableDeclaration(v.variable, init);
   },
 
- 
+
 
   WhileStatement(w) {
     const test = visit(w.test);
