@@ -1,4 +1,4 @@
-// optimizer.test.js – extended coverage for optimizer
+// optimizer.test.js 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import parse from "../src/parser.js";
@@ -10,7 +10,6 @@ function opt(src) {
 }
 
 describe("The optimizer", () => {
-  // ✨ helper to get first initializer value
   const val = src => opt(src).statements[0].initializer;
 
   it("constant‑folds numeric addition", () => {
@@ -51,7 +50,7 @@ describe("The optimizer", () => {
     assert.deepEqual(ir.statements, []);
   });
 
-  // --- NEW TESTS TO IMPROVE COVERAGE ---
+  
   it("constant‑folds arithmetic * / % and **", () => {
     assert.equal(val("let x = 4 * 2;"), 8);
     assert.equal(val("let x = 9 / 3;"), 3);
@@ -77,7 +76,6 @@ describe("The optimizer", () => {
       task noop { let nums = [1,2]; for n in nums { print(n); } }
     `;
     const ir = opt(src);
-    // programme should still have two top‑level declarations
     assert.equal(ir.statements.length, 2);
  
   })
