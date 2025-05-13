@@ -19,6 +19,7 @@
       <li><a href="#examples">Examples</a></li>
       <li><a href="#errors">Static Errors</a></li>
       <li><a href="#team">Team</a></li>
+      <li><a href="#cli">Command Line</a></li>
       <li><a href="https://github.com/patrickking67/cloudscribe" target="_blank">GitHub</a></li>
     </ul>
   </nav>
@@ -135,6 +136,19 @@ task securityScan {
         <li>🛑 Calling values that are not functions</li>
         <li>🛑 Type mismatches in binary and unary operations</li>
         <li>🛑 Invalid operands for arithmetic and logical expressions</li>
+      </ul>
+    </section>
+
+    <section id="cli">
+      <h2>Command Line Usage</h2>
+      <p>Use the CloudScribe compiler from your terminal:</p>
+      <pre><code>cloudscribe &lt;filename&gt; &lt;outputType&gt;</code></pre>
+      <p>Valid output types:</p>
+      <ul>
+        <li><code>parsed</code> — validate syntax</li>
+        <li><code>analyzed</code> — show semantic tree</li>
+        <li><code>optimized</code> — show optimized IR</li>
+        <li><code>js</code> — compile to JavaScript</li>
       </ul>
     </section>
 
