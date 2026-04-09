@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/**
+ * CloudScribe CLI — compiles .csc source files to various output formats.
+ * @module cli
+ */
+
 import * as fs from "node:fs/promises";
 import stringify from "graph-stringify";
 import compile from "./compiler.js";

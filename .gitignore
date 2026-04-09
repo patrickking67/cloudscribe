@@ -5,6 +5,10 @@ node_modules/
 coverage/
 .nyc_output/
 
+# Environment
+.env
+.env.*
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -21,3 +25,6 @@ package-lock.json
 
 # Build output
 dist/
+
+# Claude Code
+.claude/

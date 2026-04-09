@@ -1,5 +1,12 @@
+/**
+ * Semantic analyzer — performs type checking, scope resolution, and validation.
+ * Transforms an Ohm match into a typed abstract syntax tree using core node constructors.
+ * @module analyzer
+ */
+
 import * as core from "./core.js"
 
+/** Scoping context that tracks local bindings, loop/function nesting, and parent scopes. */
 class Context {
   constructor({
     parent = null,
@@ -28,6 +35,12 @@ class Context {
   }
 }
 
+/**
+ * Analyzes a parsed match and produces a typed AST.
+ * @param {ohm.MatchResult} match - The Ohm match from the parser.
+ * @returns {object} The analyzed program AST with type annotations.
+ * @throws {Error} On semantic errors (type mismatches, undeclared identifiers, etc.).
+ */
 export default function analyze(match) {
   let context = Context.root()
 

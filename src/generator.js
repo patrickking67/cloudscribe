@@ -1,5 +1,14 @@
+/**
+ * Code generator — transpiles the optimized CloudScribe IR into JavaScript.
+ * @module generator
+ */
 import { voidType } from "./core.js";
 
+/**
+ * Generates JavaScript source code from an optimized CloudScribe program AST.
+ * @param {object} program - The optimized program AST.
+ * @returns {string} The generated JavaScript source code.
+ */
 export default function generate(program) {
   const out = [];
   const map = new Map();

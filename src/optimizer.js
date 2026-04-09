@@ -1,6 +1,15 @@
-// optimizer.js – CloudScribe IR optimizations
+/**
+ * Optimizer — performs constant folding, dead code elimination, and branch simplification
+ * on the analyzed AST to produce an optimized intermediate representation.
+ * @module optimizer
+ */
 import * as core from "./core.js";
 
+/**
+ * Optimizes an analyzed AST by folding constants and eliminating dead code.
+ * @param {object} root - The analyzed program AST.
+ * @returns {object} The optimized program AST.
+ */
 export default function optimize(root) {
   return visit(root);
 }
