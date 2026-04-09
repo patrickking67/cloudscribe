@@ -18,8 +18,8 @@
   <!-- Rounded square background -->
   <rect width="512" height="512" rx="108" fill="url(#bg)"/>
 
-  <!-- Cloud shape — centered, balanced -->
-  <g transform="translate(256,232)">
+  <!-- Cloud shape — centered on 512x512 canvas -->
+  <g transform="translate(256,256)">
     <path d="
       M -140 30
       C -140 30 -155 30 -155 10
@@ -37,7 +37,7 @@
   </g>
 
   <!-- Terminal prompt inside cloud -->
-  <g transform="translate(256,240)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(256,264)" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <!-- > cursor -->
     <polyline points="-42,-18 -20,2 -42,22" stroke="url(#accent)" stroke-width="14"/>
     <!-- Typing line -->
