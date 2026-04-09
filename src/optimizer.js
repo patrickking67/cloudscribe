@@ -5,7 +5,6 @@ export default function optimize(root) {
   return visit(root);
 }
 
-
 const BIN_OP = {
   "+":  (a, b) => a + b,
   "-":  (a, b) => a - b,
@@ -46,7 +45,6 @@ function visitBlock(stmts) {
   return optim === stmts ? stmts : optim;
 }
 
-
 function foldBinary(node) {
   const left = visit(node.left);
   const right = visit(node.right);
@@ -55,7 +53,8 @@ function foldBinary(node) {
   if (isLiteral(left) && isLiteral(right) && BIN_OP[op]) {
     return BIN_OP[op](left, right);
   }
-  
+
+  return core.binary(op, left, right, node.type);
 }
 
 const visitors = {
@@ -69,12 +68,38 @@ const visitors = {
     return core.variableDeclaration(v.variable, init);
   },
 
+  Assignment(a) {
+    const source = visit(a.source);
+    return core.assignment(a.target, source);
+  },
 
+  PrintStatement(ps) {
+    const argument = visit(ps.argument);
+    return core.printStatement(argument);
+  },
+
+  IfStatement(s) {
+    const test = visit(s.test);
+    const consequent = visitBlock(s.consequent);
+    const alternate = visitBlock(s.alternate);
+    if (isLiteral(test)) {
+      return test ? consequent : alternate;
+    }
+    return core.ifStatement(test, consequent, alternate);
+  },
+
+  ShortIfStatement(s) {
+    const test = visit(s.test);
+    const consequent = visitBlock(s.consequent);
+    if (test === false) return null;
+    return core.shortIfStatement(test, consequent);
+  },
 
   WhileStatement(w) {
     const test = visit(w.test);
     const body = visitBlock(w.body);
     if (test === false) return null;
+    return core.whileStatement(test, body);
   },
 
   ForStatement(f) {
@@ -97,6 +122,18 @@ const visitors = {
     return core.taskDeclaration(newT);
   },
 
+  Increment(node) {
+    return node;
+  },
+
+  Decrement(node) {
+    return node;
+  },
+
+  BreakStatement(node) {
+    return node;
+  },
+
   BinaryExpression: foldBinary,
 
   UnaryExpression(u) {
@@ -109,7 +146,7 @@ const visitors = {
         case "some": return operand;
       }
     }
-    
+    return core.unary(op, operand, u.type);
   },
 
   Conditional(c) {
@@ -117,9 +154,19 @@ const visitors = {
     const cons = visit(c.consequent);
     const alt  = visit(c.alternate);
     if (isLiteral(test)) return test ? cons : alt;
+    return core.conditional(test, cons, alt, c.type);
   },
 
+  SubscriptExpression(se) {
+    const array = visit(se.array);
+    const index = visit(se.index);
+    return core.subscript(array, index);
+  },
 
+  MemberExpression(me) {
+    const object = visit(me.object);
+    return core.memberExpression(object, me.field);
+  },
 
   ArrayExpression(ae) {
     const elems = ae.elements.map(visit);
@@ -136,5 +183,7 @@ const visitors = {
     return core.returnStatement(visit(r.expression));
   },
 
-  
+  ShortReturnStatement(r) {
+    return core.shortReturnStatement();
+  },
 };

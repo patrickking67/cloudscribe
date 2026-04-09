@@ -29,6 +29,8 @@ export default function generate(program) {
         return `${exp(e.object)}.${e.field}`;
       case "ArrayExpression":
         return `[${e.elements.map(exp).join(", ")}]`;
+      case "FunctionCall":
+        return `${exp(e.callee)}(${e.args.map(exp).join(", ")})`;
       default:
         throw new Error(`generator exp: unhandled expression kind ${e.kind}`);
     }
@@ -83,6 +85,13 @@ export default function generate(program) {
         out.push(`}`);
         break;
 
+      case "TaskDeclaration": {
+        const t = node.task;
+        out.push(`// task: ${t.name}`);
+        t.body.forEach(gen);
+        break;
+      }
+
       case "FunctionDeclaration": {
         const f = node.fun;
         const fnName = jsName(f);
@@ -93,12 +102,20 @@ export default function generate(program) {
         break;
       }
 
+      case "Increment":
+        out.push(`${exp(node.variable)}++;`);
+        break;
+
+      case "Decrement":
+        out.push(`${exp(node.variable)}--;`);
+        break;
+
       case "FunctionCall": {
-        const callCode = `${exp(node.callee)}(${node.args.map(exp).join(",")})`;
-        if (node.callee.type.returnType === voidType) {
-          out.push(`console.log(${node.args.map(exp).join(",")});`);
+        const callArgs = node.args.map(exp).join(",");
+        if (node.callee.type?.returnType === voidType) {
+          out.push(`console.log(${callArgs});`);
         } else {
-          out.push(callCode + ";");
+          out.push(`${exp(node.callee)}(${callArgs});`);
         }
         break;
       }

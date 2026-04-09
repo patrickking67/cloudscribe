@@ -1,20 +1,39 @@
 {
   "name": "cloudscribe",
-  "version": "4.2",
-  "description": "A scripting language for IT automation, cloud management, and system administration.",
-  "main": "cloudscribe.js",
+  "version": "1.0.0",
+  "description": "A statically typed scripting language for IT automation, cloud management, and system administration.",
   "type": "module",
-  "directories": {
-    "doc": "docs",
-    "example": "examples",
-    "test": "test"
+  "main": "src/compiler.js",
+  "bin": {
+    "cloudscribe": "src/cloudscribe.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "c8 node --test test/*.test.js"
+    "test": "c8 node --test test/*.test.js",
+    "test:only": "node --test test/*.test.js",
+    "compile": "node src/cloudscribe.js"
   },
+  "keywords": [
+    "compiler",
+    "language",
+    "scripting",
+    "static-typing",
+    "it-automation",
+    "sysadmin",
+    "infrastructure",
+    "devops",
+    "cloud",
+    "ohm"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/patrickgking03/cloudscribe.git"
+    "url": "git+https://github.com/patrickking67/cloudscribe.git"
+  },
+  "homepage": "https://patrickking67.github.io/cloudscribe/",
+  "bugs": {
+    "url": "https://github.com/patrickking67/cloudscribe/issues"
   },
   "author": "Patrick King and Thomas Powell",
   "license": "MIT",
