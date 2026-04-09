@@ -212,16 +212,16 @@
 
 <span class="kw">task</span> <span class="fn">backupData</span> {
   <span class="kw">let</span> files = [<span class="str">"config.json"</span>, <span class="str">"users.db"</span>, <span class="str">"logs.txt"</span>];
-  <span class="kw">let</span> failedCount = <span class="num">0</span>;
+  <span class="kw">let</span> completed = <span class="num">0</span>;
 
   <span class="kw">for</span> file <span class="kw">in</span> files {
     <span class="kw">if</span> <span class="fn">backupFile</span>(file) {
-      <span class="fn">print</span>(<span class="str">"OK: "</span> + file);
-    } <span class="kw">else</span> {
-      <span class="fn">print</span>(<span class="str">"FAIL: "</span> + file);
-      failedCount++;
+      <span class="fn">print</span>(<span class="str">"Done: "</span> + file);
+      completed++;
     }
   }
+
+  <span class="fn">print</span>(<span class="str">"Backed up "</span> + completed + <span class="str">" files"</span>);
 }</code></pre>
         </div>
 
