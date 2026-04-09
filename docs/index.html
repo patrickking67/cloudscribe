@@ -5,91 +5,138 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudScribe — A Statically Typed Language for IT Automation</title>
   <meta name="description" content="CloudScribe is a statically typed scripting language that compiles to JavaScript. Built for IT automation with compile-time safety.">
+  <meta property="og:title" content="CloudScribe">
+  <meta property="og:description" content="A statically typed scripting language for IT automation that compiles to JavaScript.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://patrickking67.github.io/cloudscribe/">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81' },
-            sky: { 400: '#38bdf8', 500: '#3b82f6', 600: '#2563eb' }
+            brand: { 50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81',950:'#1e1b4b' }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out both',
+            'fade-up': 'fadeUp 0.7s ease-out both',
+            'glow':    'glow 4s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            fadeIn:  { from: { opacity: '0' }, to: { opacity: '1' } },
+            fadeUp:  { from: { opacity: '0', transform: 'translateY(24px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+            glow:    { from: { opacity: '0.4' }, to: { opacity: '0.7' } },
           }
         }
       }
     }
   </script>
   <style>
-    .code-block { background: #0f172a; }
-    .code-block code { color: #e2e8f0; font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace; }
-    .kw { color: #c084fc; }
-    .fn { color: #60a5fa; }
+    .code-block { background: #0c1222; }
+    .code-block code { color: #e2e8f0; font-family: 'SF Mono','Fira Code','JetBrains Mono','Cascadia Code',monospace; font-size: 0.8125rem; }
+    .kw  { color: #c084fc; }
+    .fn  { color: #60a5fa; }
     .str { color: #34d399; }
-    .type { color: #fbbf24; }
-    .cmt { color: #64748b; }
+    .type{ color: #fbbf24; }
+    .cmt { color: #475569; font-style: italic; }
     .num { color: #f472b6; }
-    .op { color: #94a3b8; }
+    .op  { color: #94a3b8; }
+    .lit { color: #fb923c; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; } }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-200 antialiased">
+<body class="bg-slate-950 text-slate-300 antialiased">
 
-  <!-- Hero -->
-  <header class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-brand-900/40 via-slate-950 to-sky-600/20"></div>
-    <div class="relative max-w-5xl mx-auto px-6 pt-20 pb-24 text-center">
-      <div class="mb-8">
-        <img src="logo.svg" alt="CloudScribe" class="w-28 h-28 mx-auto drop-shadow-2xl">
-      </div>
-      <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-4">
-        <span class="bg-gradient-to-r from-sky-400 via-brand-400 to-brand-500 bg-clip-text text-transparent">CloudScribe</span>
+  <!-- ─── Hero ─── -->
+  <header class="relative overflow-hidden isolate">
+    <!-- Ambient glow orbs -->
+    <div class="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-brand-600/20 blur-[120px] animate-glow"></div>
+    <div class="absolute -bottom-40 -right-40 w-[400px] h-[400px] rounded-full bg-violet-600/15 blur-[100px] animate-glow" style="animation-delay:2s"></div>
+
+    <div class="relative max-w-5xl mx-auto px-6 pt-24 pb-28 text-center">
+      <img src="logo.svg" alt="CloudScribe" class="w-24 h-24 mx-auto mb-8 drop-shadow-2xl animate-fade-in rounded-2xl">
+      <h1 class="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 animate-fade-up">
+        <span class="bg-gradient-to-r from-blue-400 via-brand-400 to-violet-400 bg-clip-text text-transparent">CloudScribe</span>
       </h1>
-      <p class="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto mb-10">
+      <p class="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto mb-10 animate-fade-up" style="animation-delay:0.15s">
         A statically typed scripting language for IT automation that compiles to JavaScript.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="https://github.com/patrickking67/cloudscribe" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-colors shadow-lg shadow-brand-600/25">
+      <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style="animation-delay:0.3s">
+        <a href="https://github.com/patrickking67/cloudscribe" target="_blank" rel="noopener" class="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-all shadow-lg shadow-brand-600/20 hover:shadow-brand-500/30 hover:-translate-y-0.5">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
           View on GitHub
         </a>
-        <a href="#quickstart" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold transition-colors">
+        <a href="#quickstart" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-slate-700 hover:border-brand-500/50 text-slate-300 hover:text-white font-semibold transition-all hover:-translate-y-0.5">
           Get Started
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/></svg>
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Nav -->
+  <!-- ─── Stats bar ─── -->
+  <div class="border-y border-slate-800/60 bg-slate-900/40">
+    <div class="max-w-5xl mx-auto px-6 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      <div>
+        <div class="text-2xl font-bold text-white">160</div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Tests Passing</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-white">~98%</div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Coverage</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-white">5</div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Compiler Stages</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-white">0</div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Runtime Deps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Nav ─── -->
   <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50">
-    <div class="max-w-5xl mx-auto px-6 flex items-center justify-center gap-8 py-3 text-sm font-medium">
-      <a href="#features" class="text-slate-400 hover:text-white transition-colors">Features</a>
-      <a href="#examples" class="text-slate-400 hover:text-white transition-colors">Examples</a>
-      <a href="#pipeline" class="text-slate-400 hover:text-white transition-colors">Architecture</a>
-      <a href="#errors" class="text-slate-400 hover:text-white transition-colors">Type Safety</a>
-      <a href="#quickstart" class="text-slate-400 hover:text-white transition-colors">Quick Start</a>
+    <div class="max-w-5xl mx-auto px-6 flex items-center justify-between py-3">
+      <a href="#" class="text-white font-bold text-sm tracking-tight flex items-center gap-2">
+        <img src="logo.svg" alt="" class="w-6 h-6 rounded">
+        CloudScribe
+      </a>
+      <div class="flex items-center gap-6 text-sm font-medium">
+        <a href="#features" class="text-slate-400 hover:text-white transition-colors hidden sm:block">Features</a>
+        <a href="#examples" class="text-slate-400 hover:text-white transition-colors hidden sm:block">Examples</a>
+        <a href="#pipeline" class="text-slate-400 hover:text-white transition-colors hidden sm:block">Architecture</a>
+        <a href="#errors" class="text-slate-400 hover:text-white transition-colors hidden sm:block">Type Safety</a>
+        <a href="#quickstart" class="text-slate-400 hover:text-white transition-colors">Quick Start</a>
+      </div>
     </div>
   </nav>
 
   <main class="max-w-5xl mx-auto px-6">
 
-    <!-- Features -->
-    <section id="features" class="py-20">
-      <h2 class="text-3xl font-bold text-white mb-12 text-center">Why CloudScribe?</h2>
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-brand-500/30 transition-colors">
-          <div class="w-10 h-10 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+    <!-- ─── Features ─── -->
+    <section id="features" class="py-24">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 text-center">Why CloudScribe?</h2>
+      <p class="text-slate-400 text-center mb-14 max-w-lg mx-auto">Python's readability meets PowerShell's utility, with compile-time guarantees.</p>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="group p-6 rounded-2xl bg-slate-900/40 border border-slate-800/60 hover:border-brand-500/40 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/5">
+          <div class="w-11 h-11 rounded-xl bg-brand-600/15 flex items-center justify-center mb-5 group-hover:bg-brand-600/25 transition-colors">
             <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
           </div>
           <h3 class="text-lg font-semibold text-white mb-2">Compile-Time Safety</h3>
           <p class="text-slate-400 text-sm leading-relaxed">Full static type checking catches errors before your scripts reach production. No more runtime surprises.</p>
         </div>
-        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-brand-500/30 transition-colors">
-          <div class="w-10 h-10 rounded-lg bg-sky-600/20 flex items-center justify-center mb-4">
-            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg>
+        <div class="group p-6 rounded-2xl bg-slate-900/40 border border-slate-800/60 hover:border-sky-500/40 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-sky-500/5">
+          <div class="w-11 h-11 rounded-xl bg-sky-600/15 flex items-center justify-center mb-5 group-hover:bg-sky-600/25 transition-colors">
+            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/></svg>
           </div>
           <h3 class="text-lg font-semibold text-white mb-2">Task-Based Model</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">First-class <code class="text-sky-400">task</code> declarations organize automation workflows into self-contained, composable units.</p>
+          <p class="text-slate-400 text-sm leading-relaxed">First-class <code class="text-sky-400 bg-sky-400/10 px-1.5 py-0.5 rounded text-xs">task</code> declarations organize automation workflows into composable units.</p>
         </div>
-        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-brand-500/30 transition-colors">
-          <div class="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center mb-4">
+        <div class="group p-6 rounded-2xl bg-slate-900/40 border border-slate-800/60 hover:border-emerald-500/40 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/5">
+          <div class="w-11 h-11 rounded-xl bg-emerald-600/15 flex items-center justify-center mb-5 group-hover:bg-emerald-600/25 transition-colors">
             <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
           </div>
           <h3 class="text-lg font-semibold text-white mb-2">Compiles to JavaScript</h3>
@@ -98,14 +145,67 @@
       </div>
     </section>
 
-    <!-- Examples -->
-    <section id="examples" class="py-20 border-t border-slate-800/50">
-      <h2 class="text-3xl font-bold text-white mb-12 text-center">See It in Action</h2>
-
-      <div class="space-y-12">
+    <!-- ─── Compilation Demo ─── -->
+    <section class="py-24 border-t border-slate-800/50">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 text-center">See the Compiler in Action</h2>
+      <p class="text-slate-400 text-center mb-14 max-w-lg mx-auto">Write CloudScribe, get optimized JavaScript.</p>
+      <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <h3 class="text-lg font-semibold text-slate-300 mb-4">Data Backup</h3>
-          <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-relaxed border border-slate-800"><code><span class="kw">function</span> <span class="fn">backupFile</span>(filename: <span class="type">string</span>): <span class="type">boolean</span> {
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Input &mdash; deploy.csc</span>
+          </div>
+          <pre class="code-block rounded-xl p-5 overflow-x-auto leading-relaxed border border-slate-800/80"><code><span class="kw">task</span> <span class="fn">deploy</span> {
+  <span class="kw">let</span> services = [<span class="str">"web"</span>, <span class="str">"api"</span>, <span class="str">"db"</span>];
+  <span class="kw">let</span> count = <span class="num">0</span>;
+  <span class="kw">const</span> TIMEOUT = <span class="num">2</span> + <span class="num">3</span>;
+
+  <span class="kw">for</span> svc <span class="kw">in</span> services {
+    <span class="fn">print</span>(<span class="str">"Deploying: "</span> + svc);
+    count++;
+  }
+
+  <span class="kw">if</span> count > <span class="num">0</span> {
+    <span class="fn">print</span>(<span class="str">"Done: "</span> + count);
+  }
+}</code></pre>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Output &mdash; JavaScript</span>
+          </div>
+          <pre class="code-block rounded-xl p-5 overflow-x-auto leading-relaxed border border-emerald-900/30"><code><span class="cmt">// task: deploy</span>
+{
+  <span class="kw">let</span> services_0 = [<span class="str">"web"</span>, <span class="str">"api"</span>, <span class="str">"db"</span>];
+  <span class="kw">let</span> count_1 = <span class="num">0</span>;
+  <span class="kw">const</span> TIMEOUT_2 = <span class="num">5</span>; <span class="cmt">// folded!</span>
+
+  <span class="kw">for</span> (<span class="kw">const</span> svc_3 <span class="kw">of</span> services_0) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Deploying: "</span> + svc_3);
+    count_1++;
+  }
+
+  <span class="kw">if</span> (count_1 > <span class="num">0</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Done: "</span> + count_1);
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Examples ─── -->
+    <section id="examples" class="py-24 border-t border-slate-800/50">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 text-center">Example Programs</h2>
+      <p class="text-slate-400 text-center mb-14 max-w-lg mx-auto">Real-world automation patterns, statically checked.</p>
+
+      <div class="space-y-10">
+        <div>
+          <h3 class="text-base font-semibold text-slate-300 mb-3 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+            Data Backup
+          </h3>
+          <pre class="code-block rounded-xl p-5 overflow-x-auto leading-relaxed border border-slate-800/80"><code><span class="kw">function</span> <span class="fn">backupFile</span>(filename: <span class="type">string</span>): <span class="type">boolean</span> {
   <span class="fn">print</span>(<span class="str">"Backing up: "</span> + filename);
   <span class="kw">return</span> <span class="num">true</span>;
 }
@@ -126,8 +226,11 @@
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold text-slate-300 mb-4">Security Scan</h3>
-          <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-relaxed border border-slate-800"><code><span class="kw">function</span> <span class="fn">scanPort</span>(port: <span class="type">int</span>): <span class="type">boolean</span> {
+          <h3 class="text-base font-semibold text-slate-300 mb-3 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            Security Scan
+          </h3>
+          <pre class="code-block rounded-xl p-5 overflow-x-auto leading-relaxed border border-slate-800/80"><code><span class="kw">function</span> <span class="fn">scanPort</span>(port: <span class="type">int</span>): <span class="type">boolean</span> {
   <span class="kw">return</span> <span class="num">true</span>;
 }
 
@@ -146,15 +249,18 @@
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold text-slate-300 mb-4">Type System</h3>
-          <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-relaxed border border-slate-800"><code><span class="cmt">// Primitives</span>
-<span class="kw">let</span> count = <span class="num">42</span>;              <span class="cmt">// int</span>
-<span class="kw">let</span> name = <span class="str">"server-01"</span>;      <span class="cmt">// string</span>
-<span class="kw">let</span> active = <span class="num">true</span>;           <span class="cmt">// boolean</span>
-<span class="kw">const</span> MAX = <span class="num">3</span>;               <span class="cmt">// immutable</span>
+          <h3 class="text-base font-semibold text-slate-300 mb-3 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Type System
+          </h3>
+          <pre class="code-block rounded-xl p-5 overflow-x-auto leading-relaxed border border-slate-800/80"><code><span class="cmt">// Primitives</span>
+<span class="kw">let</span> count = <span class="num">42</span>;                  <span class="cmt">// int</span>
+<span class="kw">let</span> name = <span class="str">"server-01"</span>;          <span class="cmt">// string</span>
+<span class="kw">let</span> active = <span class="num">true</span>;               <span class="cmt">// boolean</span>
+<span class="kw">const</span> MAX = <span class="num">3</span>;                   <span class="cmt">// immutable</span>
 
 <span class="cmt">// Compound types</span>
-<span class="kw">let</span> ports = [<span class="num">80</span>, <span class="num">443</span>];       <span class="cmt">// [int]</span>
+<span class="kw">let</span> ports = [<span class="num">80</span>, <span class="num">443</span>];           <span class="cmt">// [int]</span>
 
 <span class="cmt">// Expressions</span>
 <span class="kw">let</span> status = active ? <span class="str">"OK"</span> : <span class="str">"DOWN"</span>;
@@ -164,127 +270,135 @@
       </div>
     </section>
 
-    <!-- Pipeline -->
-    <section id="pipeline" class="py-20 border-t border-slate-800/50">
-      <h2 class="text-3xl font-bold text-white mb-12 text-center">Compiler Architecture</h2>
-      <div class="flex flex-wrap items-center justify-center gap-3 mb-12 text-sm font-mono">
-        <span class="px-4 py-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">.csc</span>
-        <span class="text-slate-600">&rarr;</span>
-        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Parser</span>
-        <span class="text-slate-600">&rarr;</span>
-        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Analyzer</span>
-        <span class="text-slate-600">&rarr;</span>
-        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Optimizer</span>
-        <span class="text-slate-600">&rarr;</span>
-        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Generator</span>
-        <span class="text-slate-600">&rarr;</span>
-        <span class="px-4 py-2 rounded-lg bg-slate-800 text-emerald-400 border border-slate-700">.js</span>
+    <!-- ─── Pipeline ─── -->
+    <section id="pipeline" class="py-24 border-t border-slate-800/50">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 text-center">Compiler Architecture</h2>
+      <p class="text-slate-400 text-center mb-14 max-w-lg mx-auto">Five-stage pipeline, each fully tested.</p>
+
+      <!-- Pipeline flow -->
+      <div class="flex flex-wrap items-center justify-center gap-2.5 mb-14 text-sm font-mono">
+        <span class="px-4 py-2 rounded-lg bg-slate-800/80 text-sky-400 border border-slate-700/60 shadow-sm">.csc</span>
+        <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        <span class="px-4 py-2 rounded-lg bg-brand-950/60 text-brand-300 border border-brand-800/40">Parser</span>
+        <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        <span class="px-4 py-2 rounded-lg bg-brand-950/60 text-brand-300 border border-brand-800/40">Analyzer</span>
+        <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        <span class="px-4 py-2 rounded-lg bg-brand-950/60 text-brand-300 border border-brand-800/40">Optimizer</span>
+        <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        <span class="px-4 py-2 rounded-lg bg-brand-950/60 text-brand-300 border border-brand-800/40">Generator</span>
+        <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        <span class="px-4 py-2 rounded-lg bg-slate-800/80 text-emerald-400 border border-slate-700/60 shadow-sm">.js</span>
       </div>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
-          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">cloudscribe.ohm</code>
+
+      <!-- File grid -->
+      <div class="grid md:grid-cols-2 gap-3">
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:border-slate-700/60 transition-colors">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap shrink-0">cloudscribe.ohm</code>
           <span class="text-slate-500 text-sm">PEG grammar definition using Ohm</span>
         </div>
-        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
-          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">parser.js</code>
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:border-slate-700/60 transition-colors">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap shrink-0">parser.js</code>
           <span class="text-slate-500 text-sm">Produces a concrete syntax tree from source</span>
         </div>
-        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
-          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">analyzer.js</code>
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:border-slate-700/60 transition-colors">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap shrink-0">analyzer.js</code>
           <span class="text-slate-500 text-sm">Type checking, scope resolution, validation</span>
         </div>
-        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
-          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">optimizer.js</code>
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:border-slate-700/60 transition-colors">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap shrink-0">optimizer.js</code>
           <span class="text-slate-500 text-sm">Constant folding, dead code elimination</span>
         </div>
-        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
-          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">generator.js</code>
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:border-slate-700/60 transition-colors">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap shrink-0">generator.js</code>
           <span class="text-slate-500 text-sm">Transpiles optimized IR to JavaScript</span>
         </div>
-        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
-          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">core.js</code>
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:border-slate-700/60 transition-colors">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap shrink-0">core.js</code>
           <span class="text-slate-500 text-sm">AST node constructors and type system</span>
         </div>
       </div>
     </section>
 
-    <!-- Static Errors -->
-    <section id="errors" class="py-20 border-t border-slate-800/50">
-      <h2 class="text-3xl font-bold text-white mb-4 text-center">Compile-Time Error Detection</h2>
-      <p class="text-slate-400 text-center mb-12 max-w-2xl mx-auto">CloudScribe catches these errors at compile time, before your code ever runs.</p>
-      <div class="grid sm:grid-cols-2 gap-3 max-w-3xl mx-auto">
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+    <!-- ─── Static Errors ─── -->
+    <section id="errors" class="py-24 border-t border-slate-800/50">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 text-center">Compile-Time Error Detection</h2>
+      <p class="text-slate-400 text-center mb-14 max-w-lg mx-auto">CloudScribe catches these errors before your code ever runs.</p>
+      <div class="grid sm:grid-cols-2 gap-2.5 max-w-3xl mx-auto">
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Redeclared variables</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Undeclared identifiers</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Type mismatches in expressions</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Non-boolean conditions</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
-          <span class="text-slate-300">Non-array in <code class="text-red-300">for...in</code></span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
+          <span class="text-slate-300">Non-array in <code class="text-red-300/80">for...in</code></span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
-          <span class="text-slate-300"><code class="text-red-300">break</code> outside loop</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
+          <span class="text-slate-300"><code class="text-red-300/80">break</code> outside loop</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
-          <span class="text-slate-300">Assignment to <code class="text-red-300">const</code></span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
+          <span class="text-slate-300">Assignment to <code class="text-red-300/80">const</code></span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Wrong argument count</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Calling non-functions</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
-          <span class="text-red-400 font-mono text-xs">ERR</span>
+        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-red-950/15 border border-red-900/20 text-sm hover:border-red-800/30 transition-colors">
+          <span class="text-red-400 font-mono text-[10px] font-bold bg-red-400/10 px-1.5 py-0.5 rounded shrink-0">ERR</span>
           <span class="text-slate-300">Non-integer array index</span>
         </div>
       </div>
     </section>
 
-    <!-- Quick Start -->
-    <section id="quickstart" class="py-20 border-t border-slate-800/50">
-      <h2 class="text-3xl font-bold text-white mb-12 text-center">Quick Start</h2>
+    <!-- ─── Quick Start ─── -->
+    <section id="quickstart" class="py-24 border-t border-slate-800/50">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-14 text-center">Quick Start</h2>
       <div class="max-w-2xl mx-auto">
-        <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-loose border border-slate-800"><code><span class="cmt"># Clone and install</span>
+        <pre class="code-block rounded-xl p-6 overflow-x-auto leading-loose border border-slate-800/80"><code><span class="cmt"># Clone and install</span>
 git clone https://github.com/patrickking67/cloudscribe.git
-cd cloudscribe
-npm install
+cd cloudscribe && npm install
 
-<span class="cmt"># Compile a script</span>
+<span class="cmt"># Compile a script to JavaScript</span>
 node src/cloudscribe.js examples/data_backup.csc js
 
 <span class="cmt"># Other output stages</span>
 node src/cloudscribe.js script.csc parsed      <span class="cmt"># syntax check</span>
-node src/cloudscribe.js script.csc analyzed     <span class="cmt"># view typed AST</span>
-node src/cloudscribe.js script.csc optimized    <span class="cmt"># view optimized IR</span>
+node src/cloudscribe.js script.csc analyzed     <span class="cmt"># typed AST</span>
+node src/cloudscribe.js script.csc optimized    <span class="cmt"># optimized IR</span>
 
-<span class="cmt"># Run the test suite (160 tests)</span>
+<span class="cmt"># Run the test suite (160 tests, ~98% coverage)</span>
 npm test</code></pre>
       </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-slate-800/50 py-10 mt-10">
+  <!-- ─── Footer ─── -->
+  <footer class="border-t border-slate-800/50 py-10">
     <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-      <p>&copy; 2025 CloudScribe &middot; Created by <a href="https://github.com/patrickking67" class="text-slate-400 hover:text-white transition-colors">Patrick King</a></p>
-      <a href="https://github.com/patrickking67/cloudscribe" class="text-slate-400 hover:text-white transition-colors">GitHub</a>
+      <p>&copy; 2025 CloudScribe &middot; Built by <a href="https://github.com/patrickking67" class="text-slate-400 hover:text-white transition-colors font-medium">Patrick King</a></p>
+      <div class="flex items-center gap-5">
+        <a href="https://github.com/patrickking67/cloudscribe" target="_blank" rel="noopener" class="text-slate-400 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </div>
     </div>
   </footer>
 
