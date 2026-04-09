@@ -351,28 +351,13 @@ export default function analyze(match) {
     Exp9_multiply(exp1, op, exp2) {
       const left = exp1.rep()
       const right = exp2.rep()
-      
-      if (op.sourceString === "*") {
-        must(
-          left.type === core.intType && right.type === core.intType,
-          `Expected ${core.intType} for '*' operation`,
-          { at: exp2 }
-        )
-      } else if (op.sourceString === "/") {
-        must(
-          left.type === core.intType && right.type === core.intType,
-          `Expected ${core.intType} for '/' operation`,
-          { at: exp2 }
-        )
-      } else {
-        must(
-          left.type === core.intType && right.type === core.intType,
-          `Expected ${core.intType} for '%' operation`,
-          { at: exp2 }
-        )
-      }
-      
-      return core.binary(op.sourceString, left, right, left.type)
+      const operator = op.sourceString
+      must(
+        left.type === core.intType && right.type === core.intType,
+        `Expected ${core.intType} for '${operator}' operation`,
+        { at: exp2 }
+      )
+      return core.binary(operator, left, right, left.type)
     },
 
     Exp10_power(exp1, _op, exp2) {

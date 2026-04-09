@@ -47,11 +47,10 @@ function visit(node) {
 }
 
 function visitBlock(stmts) {
-  const optim = stmts.flatMap(s => {
-    const r = visit(s);
-    return r == null ? [] : [r];
-  });
-  return optim === stmts ? stmts : optim;
+  return stmts.flatMap(s => {
+    const r = visit(s)
+    return r == null ? [] : [r]
+  })
 }
 
 function foldBinary(node) {
@@ -129,18 +128,6 @@ const visitors = {
     const body = visitBlock(t.body);
     const newT = { ...t, body };
     return core.taskDeclaration(newT);
-  },
-
-  Increment(node) {
-    return node;
-  },
-
-  Decrement(node) {
-    return node;
-  },
-
-  BreakStatement(node) {
-    return node;
   },
 
   BinaryExpression: foldBinary,

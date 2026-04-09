@@ -1,171 +1,292 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CloudScribe Language</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudScribe — A Statically Typed Language for IT Automation</title>
+  <meta name="description" content="CloudScribe is a statically typed scripting language that compiles to JavaScript. Built for IT automation with compile-time safety.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81' },
+            sky: { 400: '#38bdf8', 500: '#3b82f6', 600: '#2563eb' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .code-block { background: #0f172a; }
+    .code-block code { color: #e2e8f0; font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace; }
+    .kw { color: #c084fc; }
+    .fn { color: #60a5fa; }
+    .str { color: #34d399; }
+    .type { color: #fbbf24; }
+    .cmt { color: #64748b; }
+    .num { color: #f472b6; }
+    .op { color: #94a3b8; }
+  </style>
 </head>
-<body>
-  <header>
-    <img src="logo.svg" alt="CloudScribe Logo" class="logo" />
-    <h1>CloudScribe</h1>
-    <p class="tagline">A scripting language for IT automation</p>
+<body class="bg-slate-950 text-slate-200 antialiased">
+
+  <!-- Hero -->
+  <header class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-900/40 via-slate-950 to-sky-600/20"></div>
+    <div class="relative max-w-5xl mx-auto px-6 pt-20 pb-24 text-center">
+      <div class="mb-8">
+        <img src="logo.svg" alt="CloudScribe" class="w-28 h-28 mx-auto drop-shadow-2xl">
+      </div>
+      <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-4">
+        <span class="bg-gradient-to-r from-sky-400 via-brand-400 to-brand-500 bg-clip-text text-transparent">CloudScribe</span>
+      </h1>
+      <p class="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto mb-10">
+        A statically typed scripting language for IT automation that compiles to JavaScript.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="https://github.com/patrickking67/cloudscribe" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-colors shadow-lg shadow-brand-600/25">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+        <a href="#quickstart" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold transition-colors">
+          Get Started
+        </a>
+      </div>
+    </div>
   </header>
 
-  <nav>
-    <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#examples">Examples</a></li>
-      <li><a href="#errors">Static Errors</a></li>
-      <li><a href="#team">Team</a></li>
-      <li><a href="#cli">Command Line</a></li>
-      <li><a href="https://github.com/patrickking67/cloudscribe" target="_blank">GitHub</a></li>
-    </ul>
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50">
+    <div class="max-w-5xl mx-auto px-6 flex items-center justify-center gap-8 py-3 text-sm font-medium">
+      <a href="#features" class="text-slate-400 hover:text-white transition-colors">Features</a>
+      <a href="#examples" class="text-slate-400 hover:text-white transition-colors">Examples</a>
+      <a href="#pipeline" class="text-slate-400 hover:text-white transition-colors">Architecture</a>
+      <a href="#errors" class="text-slate-400 hover:text-white transition-colors">Type Safety</a>
+      <a href="#quickstart" class="text-slate-400 hover:text-white transition-colors">Quick Start</a>
+    </div>
   </nav>
 
-  <main>
-    <section id="about">
-      <h2>About the Language</h2>
-      <p>CloudScribe is a statically typed scripting language designed for IT professionals and system administrators. Inspired by Python's simplicity and PowerShell's utility, CloudScribe enables users to automate infrastructure operations with clean, readable syntax and compile-time safety.</p>
-      <p>The language supports a task-based scripting paradigm with powerful control structures, strong type checking, and first-class functions. With rich support for expressions and semantic-level validation, CloudScribe is ideal for writing scripts that are both reliable and maintainable.</p>
-      <p>CloudScribe was built out of the desire to streamline real-world IT workflows without sacrificing expressiveness or safety.</p>
+  <main class="max-w-5xl mx-auto px-6">
+
+    <!-- Features -->
+    <section id="features" class="py-20">
+      <h2 class="text-3xl font-bold text-white mb-12 text-center">Why CloudScribe?</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-brand-500/30 transition-colors">
+          <div class="w-10 h-10 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Compile-Time Safety</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Full static type checking catches errors before your scripts reach production. No more runtime surprises.</p>
+        </div>
+        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-brand-500/30 transition-colors">
+          <div class="w-10 h-10 rounded-lg bg-sky-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Task-Based Model</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">First-class <code class="text-sky-400">task</code> declarations organize automation workflows into self-contained, composable units.</p>
+        </div>
+        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-brand-500/30 transition-colors">
+          <div class="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Compiles to JavaScript</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Multi-pass optimizing compiler produces clean, readable JS. Constant folding, dead code elimination, and more.</p>
+        </div>
+      </div>
     </section>
 
-    <section id="examples">
-      <h2>Example Programs</h2>
+    <!-- Examples -->
+    <section id="examples" class="py-20 border-t border-slate-800/50">
+      <h2 class="text-3xl font-bold text-white mb-12 text-center">See It in Action</h2>
 
-      <h3>1. Backup Data</h3>
-      <pre><code>function backupFile(filename: string): boolean {
-  print("Backing up: " + filename);
-  return true;
+      <div class="space-y-12">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-300 mb-4">Data Backup</h3>
+          <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-relaxed border border-slate-800"><code><span class="kw">function</span> <span class="fn">backupFile</span>(filename: <span class="type">string</span>): <span class="type">boolean</span> {
+  <span class="fn">print</span>(<span class="str">"Backing up: "</span> + filename);
+  <span class="kw">return</span> <span class="num">true</span>;
 }
 
-task backupData {
-  let files = ["config.json", "users.db", "logs.txt"];
-  let failedCount = 0;
-  print("Starting backup process");
-  for file in files {
-    if backupFile(file) {
-      print("Successfully backed up " + file);
-    } else {
-      print("Failed to backup " + file);
+<span class="kw">task</span> <span class="fn">backupData</span> {
+  <span class="kw">let</span> files = [<span class="str">"config.json"</span>, <span class="str">"users.db"</span>, <span class="str">"logs.txt"</span>];
+  <span class="kw">let</span> failedCount = <span class="num">0</span>;
+
+  <span class="kw">for</span> file <span class="kw">in</span> files {
+    <span class="kw">if</span> <span class="fn">backupFile</span>(file) {
+      <span class="fn">print</span>(<span class="str">"OK: "</span> + file);
+    } <span class="kw">else</span> {
+      <span class="fn">print</span>(<span class="str">"FAIL: "</span> + file);
       failedCount++;
     }
   }
-  if failedCount > 0 {
-    print("Backup completed with " + failedCount + " failures");
-  } else {
-    print("Backup completed successfully");
-  }
 }</code></pre>
+        </div>
 
-      <h3>2. Generate Report</h3>
-      <pre><code>task generateReport {
-  let output = "System Status Report";
-  function formatHeader(text: string): string {
-    return "--" + text + "--";
-  }
-  print(formatHeader(output));
-  print("Memory: 85%");
-  print("CPU: 45%");
-  print("Disk: 60%");
-}</code></pre>
-
-      <h3>3. Install Software</h3>
-      <pre><code>function validateVersion(ver: string): boolean {
-  return true;
+        <div>
+          <h3 class="text-lg font-semibold text-slate-300 mb-4">Security Scan</h3>
+          <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-relaxed border border-slate-800"><code><span class="kw">function</span> <span class="fn">scanPort</span>(port: <span class="type">int</span>): <span class="type">boolean</span> {
+  <span class="kw">return</span> <span class="num">true</span>;
 }
 
-task installSoftware {
-  let package = "CloudSuite";
-  let version = "2.1.0";
-  print("Installing " + package);
-  if validateVersion(version) {
-    print("Version " + version + " validated");
-  } else {
-    print("Invalid version");
-    return;
-  }
-}</code></pre>
+<span class="kw">task</span> <span class="fn">securityScan</span> {
+  <span class="kw">let</span> ports = [<span class="num">80</span>, <span class="num">443</span>, <span class="num">22</span>];
+  <span class="kw">let</span> threats = <span class="num">0</span>;
 
-      <h3>4. Security Scan</h3>
-      <pre><code>function scanPort(port: int): boolean {
-  return true;
-}
-
-task securityScan {
-  let ports = [80, 443, 22];
-  let threats = 0;
-  print("Starting security scan");
-  for port in ports {
-    if scanPort(port) {
-      print("Port " + port + " is secure");
-    } else {
+  <span class="kw">for</span> port <span class="kw">in</span> ports {
+    <span class="kw">if</span> <span class="fn">scanPort</span>(port) {
+      <span class="fn">print</span>(<span class="str">"Port "</span> + port + <span class="str">" secure"</span>);
+    } <span class="kw">else</span> {
       threats++;
     }
   }
 }</code></pre>
-
-      <h3>5. Update System</h3>
-      <pre><code>task updateSystem {
-  let components = ["OS", "Drivers", "Apps"];
-  let updateCount = 0;
-  print("System Update Starting");
-  for component in components {
-    print("Updating: " + component);
-    updateCount++;
-  }
-  print("Updated " + updateCount + " components");
-}</code></pre>
-    </section>
-
-    <section id="errors">
-      <h2>Static Semantic Errors Checked</h2>
-      <ul>
-        <li>🛑 Redeclaring an already-declared variable</li>
-        <li>🛑 Using an undeclared variable</li>
-        <li>🛑 Using a non-boolean in a conditional expression</li>
-        <li>🛑 Using a non-array in a <code>for in</code> loop</li>
-        <li>🛑 Using <code>break</code> outside of a loop</li>
-        <li>🛑 Using <code>return</code> outside of a function or task</li>
-        <li>🛑 Assigning to an immutable <code>const</code> variable</li>
-        <li>🛑 Incrementing/decrementing non-integer values</li>
-        <li>🛑 Accessing arrays with non-integer indices</li>
-        <li>🛑 Incorrect argument count in function calls</li>
-        <li>🛑 Calling values that are not functions</li>
-        <li>🛑 Type mismatches in binary and unary operations</li>
-        <li>🛑 Invalid operands for arithmetic and logical expressions</li>
-      </ul>
-    </section>
-
-    <section id="cli">
-      <h2>Command Line Usage</h2>
-      <ul>
-        <li><code>parsed</code> — validate syntax</li>
-        <li><code>analyzed</code> — show semantic tree</li>
-        <li><code>optimized</code> — show optimized IR</li>
-        <li><code>js</code> — compile to JavaScript</li>
-      </ul>
-    </section>
-
-    <section id="team">
-      <h2>Meet the Developers</h2>
-      <div class="bios">
-        <div class="bio">
-          <h3>Patrick King</h3>
-          <p>Computer Science Major and Business Administration Minor at Loyola Marymount University, Class of 2025. Patrick is passionate about IT consulting and infrastructure tooling. Outside of tech, he enjoys music and performance.</p>
         </div>
-        <div class="bio">
-          <h3>Thomas Powell</h3>
-          <p>Computer Science Major at Loyola Marymount University. Thomas is a backend development enthusiast who enjoys working on compilers and robust server-side systems. Big fan of football and clean code.</p>
+
+        <div>
+          <h3 class="text-lg font-semibold text-slate-300 mb-4">Type System</h3>
+          <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-relaxed border border-slate-800"><code><span class="cmt">// Primitives</span>
+<span class="kw">let</span> count = <span class="num">42</span>;              <span class="cmt">// int</span>
+<span class="kw">let</span> name = <span class="str">"server-01"</span>;      <span class="cmt">// string</span>
+<span class="kw">let</span> active = <span class="num">true</span>;           <span class="cmt">// boolean</span>
+<span class="kw">const</span> MAX = <span class="num">3</span>;               <span class="cmt">// immutable</span>
+
+<span class="cmt">// Compound types</span>
+<span class="kw">let</span> ports = [<span class="num">80</span>, <span class="num">443</span>];       <span class="cmt">// [int]</span>
+
+<span class="cmt">// Expressions</span>
+<span class="kw">let</span> status = active ? <span class="str">"OK"</span> : <span class="str">"DOWN"</span>;
+<span class="kw">let</span> timeout = configTimeout ?? <span class="num">30</span>;
+<span class="kw">let</span> result = (<span class="num">2</span> ** <span class="num">8</span>) % <span class="num">256</span>;</code></pre>
         </div>
       </div>
     </section>
+
+    <!-- Pipeline -->
+    <section id="pipeline" class="py-20 border-t border-slate-800/50">
+      <h2 class="text-3xl font-bold text-white mb-12 text-center">Compiler Architecture</h2>
+      <div class="flex flex-wrap items-center justify-center gap-3 mb-12 text-sm font-mono">
+        <span class="px-4 py-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">.csc</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Parser</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Analyzer</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Optimizer</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-4 py-2 rounded-lg bg-slate-800 text-brand-400 border border-slate-700">Generator</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-4 py-2 rounded-lg bg-slate-800 text-emerald-400 border border-slate-700">.js</span>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">cloudscribe.ohm</code>
+          <span class="text-slate-500 text-sm">PEG grammar definition using Ohm</span>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">parser.js</code>
+          <span class="text-slate-500 text-sm">Produces a concrete syntax tree from source</span>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">analyzer.js</code>
+          <span class="text-slate-500 text-sm">Type checking, scope resolution, validation</span>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">optimizer.js</code>
+          <span class="text-slate-500 text-sm">Constant folding, dead code elimination</span>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">generator.js</code>
+          <span class="text-slate-500 text-sm">Transpiles optimized IR to JavaScript</span>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-lg bg-slate-900/30 border border-slate-800/50">
+          <code class="text-sky-400 text-sm font-mono whitespace-nowrap">core.js</code>
+          <span class="text-slate-500 text-sm">AST node constructors and type system</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Static Errors -->
+    <section id="errors" class="py-20 border-t border-slate-800/50">
+      <h2 class="text-3xl font-bold text-white mb-4 text-center">Compile-Time Error Detection</h2>
+      <p class="text-slate-400 text-center mb-12 max-w-2xl mx-auto">CloudScribe catches these errors at compile time, before your code ever runs.</p>
+      <div class="grid sm:grid-cols-2 gap-3 max-w-3xl mx-auto">
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Redeclared variables</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Undeclared identifiers</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Type mismatches in expressions</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Non-boolean conditions</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Non-array in <code class="text-red-300">for...in</code></span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300"><code class="text-red-300">break</code> outside loop</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Assignment to <code class="text-red-300">const</code></span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Wrong argument count</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Calling non-functions</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-sm">
+          <span class="text-red-400 font-mono text-xs">ERR</span>
+          <span class="text-slate-300">Non-integer array index</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section id="quickstart" class="py-20 border-t border-slate-800/50">
+      <h2 class="text-3xl font-bold text-white mb-12 text-center">Quick Start</h2>
+      <div class="max-w-2xl mx-auto">
+        <pre class="code-block rounded-xl p-6 overflow-x-auto text-sm leading-loose border border-slate-800"><code><span class="cmt"># Clone and install</span>
+git clone https://github.com/patrickking67/cloudscribe.git
+cd cloudscribe
+npm install
+
+<span class="cmt"># Compile a script</span>
+node src/cloudscribe.js examples/data_backup.csc js
+
+<span class="cmt"># Other output stages</span>
+node src/cloudscribe.js script.csc parsed      <span class="cmt"># syntax check</span>
+node src/cloudscribe.js script.csc analyzed     <span class="cmt"># view typed AST</span>
+node src/cloudscribe.js script.csc optimized    <span class="cmt"># view optimized IR</span>
+
+<span class="cmt"># Run the test suite (160 tests)</span>
+npm test</code></pre>
+      </div>
+    </section>
+
   </main>
 
-  <footer>
-    <p>Created by Patrick King and Thomas Powell • © 2025 CloudScribe • <a href="https://github.com/patrickking67/cloudscribe">View on GitHub</a></p>
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/50 py-10 mt-10">
+    <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <p>&copy; 2025 CloudScribe &middot; Created by <a href="https://github.com/patrickking67" class="text-slate-400 hover:text-white transition-colors">Patrick King</a></p>
+      <a href="https://github.com/patrickking67/cloudscribe" class="text-slate-400 hover:text-white transition-colors">GitHub</a>
+    </div>
   </footer>
+
 </body>
 </html>

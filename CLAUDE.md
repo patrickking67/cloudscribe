@@ -15,7 +15,7 @@ Output types: `parsed`, `analyzed`, `optimized`, `js`
 
 ## Architecture
 
-Five-stage compilation pipeline using Ohm.js:
+Five-stage CloudScribe compilation pipeline using Ohm.js:
 
 ```
 Source (.csc) → Parser → Analyzer → Optimizer → Generator → JavaScript
@@ -36,3 +36,4 @@ Source (.csc) → Parser → Analyzer → Optimizer → Generator → JavaScript
 - Node.js built-in test runner (`node:test`)
 - No semicolons in most source files (mixed style — CLI and parser use them)
 - Tests in `test/` mirror source file names
+- The project name is "CloudScribe" (capital C, capital S)

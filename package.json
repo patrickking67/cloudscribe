@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/patrickking67/cloudscribe/issues"
   },
-  "author": "Patrick King and Thomas Powell",
+  "author": "Patrick King",
   "license": "MIT",
   "dependencies": {
     "graph-stringify": "^1.1.0",
