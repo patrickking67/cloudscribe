@@ -193,9 +193,20 @@ const semanticErrors = [
   ["non-integer array index", "let a = [1, 2, 3]; let x = a[true];", /Expected an integer/],
   ["wrong operand type", "let x = true + 1;", /Expected .* for '\+' operation/],
   ["immutable variable assignment", "const x = 1; x = 2;", /Cannot assign to immutable variable/],
-  ["invalid binary operations", "let x = \"hello\" - \"world\";", /Expected int for '-' operation/],  ["mismatched types in conditions", `if "not a boolean" { print("This should not work"); }`, /Expected a boolean/],
+  ["assignment type mismatch", "let x = 1; x = \"two\";", /Expected assignment of type int, got string/],
+  ["invalid binary operations", "let x = \"hello\" - \"world\";", /Expected int for '-' operation/],
+  ["mismatched types in conditions", `if "not a boolean" { print("This should not work"); }`, /Expected a boolean/],
+  ["mismatched conditional branches", `let x = true ? 1 : "two";`, /Expected conditional branch of type int, got string/],
+  ["null coalescing non-optional", "let x = 1 ?? 2;", /Expected an optional value for '\?\?'/],
+  ["null coalescing fallback mismatch", `let x = some 1 ?? "two";`, /Expected fallback of type int, got string/],
+  ["bitwise operation on non-integer", `let x = true & false;`, /Expected an integer/],
+  ["comparison type mismatch", `let x = 1 == "one";`, /Expected '==' operand of type int, got string/],
+  ["array element type mismatch", `let x = [1, "two"];`, /Expected array element of type int, got string/],
   ["calling non-functions", "let x = 5; x(10);", /Expected a function/],
   ["wrong function argument count", "function f(x: int): int { return x; } f(1, 2);", /Wrong number of arguments/],
+  ["wrong function argument type", `function f(x: int): int { return x; } f("one");`, /Expected argument 1 of type int, got string/],
+  ["wrong function return type", `function f(): int { return "one"; }`, /Expected return value of type int, got string/],
+  ["empty return from non-void function", `function f(): int { return; }`, /Expected return value of type int, got void/],
   ["unary operation on wrong type", "let x = -(true);", /Expected an integer/]
 ]
 
@@ -300,7 +311,7 @@ describe("The analyzer", () => {
 
   it("handles complex type expressions", () => {
     const result = analyze(parse(`
-      function process(arr: [int], opt: int?): (int, boolean) -> string {
+      function process(callback: (int, boolean) -> string, arr: [int], opt: int?): string {
         return "result";
       }
     `));
@@ -412,13 +423,13 @@ describe("The analyzer", () => {
     `)));
   });
 
-  it("rejects invalid return values", () => {
+  it("accepts a declared return value when its type matches", () => {
     const source = `
       function test(): int { 
-        // Empty function with no return 
+        return 1;
       }
     `;
-    analyze(parse(source));
+    assert.ok(analyze(parse(source)));
   });
 
   it("handles floats literals properly", () => {

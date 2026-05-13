@@ -55,6 +55,12 @@ describe("The compiler pipeline", () => {
     assert.match(js, /14/)
   })
 
+  it("compiles bitwise expressions to valid JavaScript", () => {
+    const js = compile("let x = (1 & 3) | 4 ^ 2;", "js")
+    assert.match(js, /let x_0 = /)
+    assert.match(js, /[&|^]/)
+  })
+
   it("uses const for immutable variables in generated JS", () => {
     const js = compile("const MAX = 99;", "js")
     assert.match(js, /const MAX_0 = 99;/)

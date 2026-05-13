@@ -1,5 +1,5 @@
 /**
- * Semantic analyzer — performs type checking, scope resolution, and validation.
+ * Semantic analyzer - performs type checking, scope resolution, and validation.
  * Transforms an Ohm match into a typed abstract syntax tree using core node constructors.
  * @module analyzer
  */
@@ -67,6 +67,41 @@ export default function analyze(match) {
     must(e.type === core.intType, "Expected an integer", at)
   }
 
+  function typeDescription(type) {
+    if (type?.kind === "ArrayType") return `[${typeDescription(type.baseType)}]`
+    if (type?.kind === "OptionalType") return `${typeDescription(type.baseType)}?`
+    if (type?.kind === "FunctionType") {
+      const params = type.paramTypes.map(typeDescription).join(", ")
+      return `(${params}) -> ${typeDescription(type.returnType)}`
+    }
+    return String(type)
+  }
+
+  function sameType(left, right) {
+    if (left === core.anyType || right === core.anyType) return true
+    if (left === right) return true
+    if (left?.kind !== right?.kind) return false
+    switch (left?.kind) {
+      case "ArrayType":
+      case "OptionalType":
+        return sameType(left.baseType, right.baseType)
+      case "FunctionType":
+        return left.paramTypes.length === right.paramTypes.length &&
+          left.paramTypes.every((type, i) => sameType(type, right.paramTypes[i])) &&
+          sameType(left.returnType, right.returnType)
+      default:
+        return false
+    }
+  }
+
+  function mustHaveType(actual, expected, at, subject = "value") {
+    must(
+      sameType(actual, expected),
+      `Expected ${subject} of type ${typeDescription(expected)}, got ${typeDescription(actual)}`,
+      at
+    )
+  }
+
   function mustBeMutable(e, at) {
     must(e.mutable !== false, "Cannot assign to immutable variable", at)
   }
@@ -94,6 +129,13 @@ export default function analyze(match) {
       `Wrong number of arguments: expected ${expected}, got ${args.length}`, at)
   }
 
+  function mustHaveCorrectArgumentTypes(callee, args, at) {
+    const expectedTypes = callee.params?.map(param => param.type) || callee.type?.paramTypes || []
+    args.forEach((arg, index) => {
+      mustHaveType(arg.type, expectedTypes[index], at, `argument ${index + 1}`)
+    })
+  }
+
   const builder = match.matcher.grammar.createSemantics().addOperation("rep", {
     Program(statements) {
       return core.program(statements.children.map(s => s.rep()))
@@ -115,6 +157,7 @@ export default function analyze(match) {
       const target = primary.rep()
       mustBeMutable(target, { at: primary })
       const source = exp.rep()
+      mustHaveType(source.type, target.type, { at: exp }, "assignment")
       return core.assignment(target, source)
     },
 
@@ -130,11 +173,19 @@ export default function analyze(match) {
     Statement_return(_return, exp, _semicolon) {
       mustBeInFunctionOrTask({ at: _return })
       const value = exp.rep()
+      const returnType = context.function?.type.returnType
+      if (returnType && returnType !== core.voidType) {
+        mustHaveType(value.type, returnType, { at: exp }, "return value")
+      }
       return core.returnStatement(value)
     },
 
     Statement_shortreturn(_return, _semicolon) {
       mustBeInFunctionOrTask({ at: _return })
+      const returnType = context.function?.type.returnType
+      if (returnType && returnType !== core.voidType) {
+        mustHaveType(core.voidType, returnType, { at: _return }, "return value")
+      }
       return core.shortReturnStatement()
     },
 
@@ -268,6 +319,7 @@ export default function analyze(match) {
       
       const consequent = exp2.rep()
       const alternate = exp3.rep()
+      mustHaveType(alternate.type, consequent.type, { at: exp3 }, "conditional branch")
       
       return core.conditional(test, consequent, alternate, consequent.type)
     },
@@ -275,6 +327,8 @@ export default function analyze(match) {
     Exp1_unwrapelse(exp1, _op, exp2) {
       const optional = exp1.rep()
       const alternate = exp2.rep()
+      must(optional.type?.kind === "OptionalType", "Expected an optional value for '??'", { at: exp1 })
+      mustHaveType(alternate.type, optional.type.baseType, { at: exp2 }, "fallback")
       return core.binary("??", optional, alternate, alternate.type)
     },
 
@@ -301,24 +355,31 @@ export default function analyze(match) {
     Exp4_bitor(exp1, _op, exp2) {
       const left = exp1.rep()
       const right = exp2.rep()
+      mustHaveIntType(left, { at: exp1 })
+      mustHaveIntType(right, { at: exp2 })
       return core.binary("|", left, right, left.type)
     },
 
     Exp5_bitxor(exp1, _op, exp2) {
       const left = exp1.rep()
       const right = exp2.rep()
+      mustHaveIntType(left, { at: exp1 })
+      mustHaveIntType(right, { at: exp2 })
       return core.binary("^", left, right, left.type)
     },
 
     Exp6_bitand(exp1, _op, exp2) {
       const left = exp1.rep()
       const right = exp2.rep()
+      mustHaveIntType(left, { at: exp1 })
+      mustHaveIntType(right, { at: exp2 })
       return core.binary("&", left, right, left.type)
     },
 
     Exp7_compare(exp1, op, exp2) {
       const left = exp1.rep()
       const right = exp2.rep()
+      mustHaveType(right.type, left.type, { at: exp2 }, `'${op.sourceString}' operand`)
       return core.binary(op.sourceString, left, right, core.booleanType)
     },
 
@@ -395,6 +456,7 @@ export default function analyze(match) {
       mustBeCallable(callee, { at: primary })
       const argList = args.asIteration().children.map(a => a.rep())
       mustHaveCorrectArgumentCount(callee, argList, { at: args })
+      mustHaveCorrectArgumentTypes(callee, argList, { at: args })
       return core.functionCall(callee, argList)
     },
 
@@ -421,6 +483,9 @@ export default function analyze(match) {
 
     Primary_arrayexp(_open, exps, _close) {
       const elements = exps.asIteration().children.map(e => e.rep())
+      for (const element of elements.slice(1)) {
+        mustHaveType(element.type, elements[0].type, { at: exps }, "array element")
+      }
       return core.arrayExpression(elements)
     },
 

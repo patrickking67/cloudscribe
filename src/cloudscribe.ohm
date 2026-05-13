@@ -39,11 +39,11 @@ CloudScribe {
               | Exp3 
   Exp3        = Exp3 "&&" Exp4               --and
               | Exp4
-  Exp4        = Exp4 ("|" Exp5)+             --bitor
+  Exp4        = Exp4 "|" Exp5               --bitor
               | Exp5
-  Exp5        = Exp5 ("^" Exp6)+             --bitxor
+  Exp5        = Exp5 "^" Exp6               --bitxor
               | Exp6
-  Exp6        = Exp6 ("&" Exp7)+             --bitand
+  Exp6        = Exp6 "&" Exp7               --bitand
               | Exp7
   Exp7        = Exp7 ("<="|"<"|"=="|"!="|">="|">") Exp8  --compare
               | Exp8
