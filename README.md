@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/patrickking67/CloudScribe/actions"><img src="https://img.shields.io/badge/tests-171_passing-brightgreen" alt="Tests"></a>
+  <a href="https://github.com/patrickking67/cloudscribe/actions"><img src="https://img.shields.io/badge/tests-171_passing-brightgreen" alt="Tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-green.svg" alt="Node"></a>
-  <a href="https://patrickking67.github.io/CloudScribe/"><img src="https://img.shields.io/badge/docs-website-purple" alt="Website"></a>
+  <a href="https://patrickking67.github.io/cloudscribe/"><img src="https://img.shields.io/badge/docs-website-purple" alt="Website"></a>
 </p>
 
 ---
@@ -28,8 +28,8 @@ The compiler is intentionally easy to inspect: parse with [Ohm](https://ohmjs.or
 **Prerequisites:** [Node.js](https://nodejs.org/) >= 18
 
 ```bash
-git clone https://github.com/patrickking67/CloudScribe.git
-cd CloudScribe
+git clone https://github.com/patrickking67/cloudscribe.git
+cd cloudscribe
 npm install
 
 # Compile a script to JavaScript
