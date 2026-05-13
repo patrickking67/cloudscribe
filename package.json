@@ -1,9 +1,15 @@
 {
   "name": "cloudscribe",
   "version": "1.0.0",
-  "description": "A statically typed scripting language for IT automation, cloud management, and system administration.",
+  "description": "A statically typed scripting language for IT automation that compiles to JavaScript.",
   "type": "module",
   "main": "src/compiler.js",
+  "files": [
+    "src",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
   "bin": {
     "cloudscribe": "src/cloudscribe.js"
   },
@@ -25,6 +31,8 @@
     "infrastructure",
     "devops",
     "cloud",
+    "automation-language",
+    "transpiler",
     "ohm"
   ],
   "repository": {

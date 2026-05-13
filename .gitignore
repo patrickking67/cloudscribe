@@ -20,9 +20,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Package manager
-package-lock.json
-
 # Build output
 dist/
 
