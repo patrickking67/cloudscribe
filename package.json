@@ -14,11 +14,12 @@
     "cloudscribe": "src/cloudscribe.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "test": "c8 node --test test/*.test.js",
     "test:only": "node --test test/*.test.js",
+    "check:repo": "bash scripts/check-repo.sh",
     "compile": "node src/cloudscribe.js"
   },
   "keywords": [

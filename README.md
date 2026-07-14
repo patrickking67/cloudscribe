@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/patrickking67/cloudscribe/actions"><img src="https://img.shields.io/badge/tests-171_passing-brightgreen" alt="Tests"></a>
+  <a href="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml"><img src="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-green.svg" alt="Node"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D20-green.svg" alt="Node"></a>
   <a href="https://patrickking67.github.io/cloudscribe/"><img src="https://img.shields.io/badge/docs-website-purple" alt="Website"></a>
 </p>
 
@@ -25,7 +25,7 @@ The compiler is intentionally easy to inspect: parse with [Ohm](https://ohmjs.or
 
 ## Quick Start
 
-**Prerequisites:** [Node.js](https://nodejs.org/) >= 18
+**Prerequisites:** [Node.js](https://nodejs.org/) >= 20
 
 ```bash
 git clone https://github.com/patrickking67/cloudscribe.git
@@ -53,6 +53,8 @@ cloudscribe <filename> <output>
 | `js`       | Compile to JavaScript              |
 
 ## Language at a Glance
+
+The [language specification](docs/language-spec.md) defines the supported syntax, type rules, operator behavior, diagnostics, and compilation contract.
 
 ```csc
 // Tasks group operational workflows
@@ -132,7 +134,7 @@ cloudscribe/
 
 ## Tech Stack
 
-- **JavaScript** (ES modules) on **Node.js** >= 18
+- **JavaScript** (ES modules) on **Node.js** >= 20
 - **[Ohm](https://ohmjs.org/)** - PEG parser generator
 - **[graph-stringify](https://www.npmjs.com/package/graph-stringify)** - AST visualization
 - **Node.js test runner** + **[c8](https://github.com/bcoe/c8)** - testing & coverage
