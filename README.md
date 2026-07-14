@@ -42,7 +42,7 @@ npm test
 ## Usage
 
 ```
-cloudscribe <filename> <output>
+cloudscribe <filename> <output> [--out <filename>]
 ```
 
 | Output     | Description                        |
@@ -137,7 +137,7 @@ cloudscribe/
 - **JavaScript** (ES modules) on **Node.js** >= 20
 - **[Ohm](https://ohmjs.org/)** - PEG parser generator
 - **[graph-stringify](https://www.npmjs.com/package/graph-stringify)** - AST visualization
-- **Node.js test runner** + **[c8](https://github.com/bcoe/c8)** - testing & coverage
+- **Node.js test runner** with native coverage - testing & coverage without a coverage wrapper
 - **[Tailwind CSS](https://tailwindcss.com/)** - project website
 
 ## Development
