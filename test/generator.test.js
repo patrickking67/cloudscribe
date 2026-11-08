@@ -411,6 +411,18 @@ describe("The generator", () => {
     assert.equal(generate(prog).trim(), "h_0(7);")
   })
 
+  it("Block: emits a bare braced block", () => {
+    const prog = {
+      kind: "Program",
+      statements: [
+        { kind: "Block", statements: [
+          { kind: "VariableDeclaration", variable: { name: "y" }, initializer: 2 }
+        ] }
+      ]
+    }
+    assert.equal(generate(prog), "{\nlet y_0 = 2;\n}")
+  })
+
   it("unknown node kind throws", () => {
     const bad = { kind: "Program", statements: [{ kind: "NoSuch" }] }
     assert.throws(() => generate(bad), /generator: unhandled node kind NoSuch/)

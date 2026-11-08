@@ -85,6 +85,11 @@ export default function generate(program) {
         node.consequent.forEach(gen)
         out.push(`}`)
         break
+      case "Block":
+        out.push(`{`)
+        node.statements.forEach(gen)
+        out.push(`}`)
+        break
       case "WhileStatement":
         out.push(`while (${exp(node.test)}) {`)
         node.body.forEach(gen)

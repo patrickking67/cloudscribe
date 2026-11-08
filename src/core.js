@@ -114,6 +114,11 @@ export function shortReturnStatement() {
   return { kind: "ShortReturnStatement" }
 }
 
+/** Creates a bare block of statements with its own scope. */
+export function block(statements) {
+  return { kind: "Block", statements }
+}
+
 /** Creates a while loop with a boolean test and body. */
 export function whileStatement(test, body) {
   return { kind: "WhileStatement", test, body }

@@ -92,6 +92,14 @@ describe("The optimizer", () => {
     assert.equal(body[0].args[0], 2);
   });
 
+  it("keeps a folded branch in its own block when it declares names", () => {
+    const ir = opt('if true { let y = 2; print(y); } else { print(0); } let y = 3;');
+    assert.equal(ir.statements.length, 2);
+    assert.equal(ir.statements[0].kind, "Block");
+    assert.equal(ir.statements[0].statements[0].kind, "VariableDeclaration");
+    assert.equal(ir.statements[1].kind, "VariableDeclaration");
+  });
+
   it("visits for‑loops, functions and tasks without mutation", () => {
     const src = `
       function add(a: int, b: int): int { return a + b; }

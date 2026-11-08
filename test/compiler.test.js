@@ -105,6 +105,17 @@ describe("The compiler pipeline", () => {
     assert.equal(result.stdout, "hello, world\nn=1\n9\n25\n3\nbefore\n")
   })
 
+  it("does not leak declarations from a folded if branch into the outer scope", () => {
+    const source = `
+      if true { let y = 2; print(y); } else { print(0); }
+      let y = 3;
+      print(y);
+    `
+    const result = runAsModule(compile(source, "js"))
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "2\n3\n")
+  })
+
   it("compiles every example to JavaScript that runs as an ES module", () => {
     const dir = new URL("../examples/", import.meta.url)
     const files = readdirSync(dir).filter(name => name.endsWith(".csc"))

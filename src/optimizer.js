@@ -56,6 +56,15 @@ function visitBlock(stmts) {
   })
 }
 
+const DECLARATIONS = new Set(["VariableDeclaration", "FunctionDeclaration", "TaskDeclaration"]);
+
+// A folded branch is spliced into the enclosing block. If it declares names,
+// splicing would move them into the outer scope, where a later declaration of
+// the same name would be a JavaScript SyntaxError. Keep such branches in a block.
+function keepScope(stmts) {
+  return stmts.some(s => DECLARATIONS.has(s?.kind)) ? core.block(stmts) : stmts;
+}
+
 function foldBinary(node) {
   const left = visit(node.left);
   const right = visit(node.right);
@@ -98,7 +107,7 @@ const visitors = {
     const consequent = visitBlock(s.consequent);
     const alternate = visitBlock(s.alternate);
     if (isLiteral(test)) {
-      return test ? consequent : alternate;
+      return keepScope(test ? consequent : alternate);
     }
     return core.ifStatement(test, consequent, alternate);
   },
