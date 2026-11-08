@@ -24,6 +24,9 @@ export default function generate(program) {
     if (e == null) return ""
     if (typeof e === "number" || typeof e === "boolean") return String(e)
     if (typeof e === "string") return e
+    // The built-in print has no JavaScript binding of its own, so a reference
+    // to it (as a value or inside an expression) must point at console.log.
+    if (e.intrinsic && e.name === "print") return "console.log"
     if (e.name) return jsName(e)
     switch (e.kind) {
       case "BinaryExpression": {

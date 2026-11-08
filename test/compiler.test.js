@@ -116,6 +116,17 @@ describe("The compiler pipeline", () => {
     assert.equal(result.stdout, "2\n3\n")
   })
 
+  it("compiles print used as a value or inside an expression", () => {
+    const source = `
+      let say = print;
+      say("first");
+      let ignored = print("second");
+    `
+    const result = runAsModule(compile(source, "js"))
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "first\nsecond\n")
+  })
+
   it("compiles every example to JavaScript that runs as an ES module", () => {
     const dir = new URL("../examples/", import.meta.url)
     const files = readdirSync(dir).filter(name => name.endsWith(".csc"))
