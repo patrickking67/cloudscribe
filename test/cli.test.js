@@ -34,6 +34,16 @@ test("CLI writes compiled JavaScript to a file", () => {
   assert.match(readFileSync(output, "utf8"), /console\.log|function/);
 });
 
+test("CLI works when run from outside the repository", () => {
+  const directory = mkdtempSync(join(tmpdir(), "cloudscribe-cwd-"));
+  const result = spawnSync(process.execPath, [cli.pathname, example.pathname, "parsed"], {
+    cwd: directory,
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), "Syntax is ok");
+});
+
 test("CLI rejects an output flag without a filename", () => {
   const result = run([example.pathname, "js", "--out"]);
   assert.equal(result.status, 1);

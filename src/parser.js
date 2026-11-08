@@ -6,7 +6,8 @@
 import * as fs from "node:fs"
 import * as ohm from "ohm-js"
 
-const grammar = ohm.grammar(fs.readFileSync("src/cloudscribe.ohm"))
+// Resolve the grammar next to this module so the CLI works from any directory.
+const grammar = ohm.grammar(fs.readFileSync(new URL("./cloudscribe.ohm", import.meta.url), "utf8"))
 
 /**
  * Parses CloudScribe source code and returns an Ohm match object.
