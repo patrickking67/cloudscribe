@@ -1,0 +1,8 @@
+Starting backup process
+Backing up: config.json
+Successfully backed up config.json
+Backing up: users.db
+Successfully backed up users.db
+Backing up: logs.txt
+Successfully backed up logs.txt
+Backup completed successfully
