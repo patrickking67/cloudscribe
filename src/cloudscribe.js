@@ -30,10 +30,25 @@ Examples:
   cloudscribe deploy.csc js --out deploy.js
 `;
 
+// Color errors only on a terminal so piped output and logs stay plain text.
+function reportError(message) {
+  console.error(process.stderr.isTTY ? `\u001b[31m${message}\u001b[39m` : message);
+  process.exitCode = 1;
+}
+
+async function readSource(filename) {
+  try {
+    return await fs.readFile(filename, "utf8");
+  } catch (e) {
+    const reason = e.code === "ENOENT" ? "file not found" : e.code === "EISDIR" ? "is a directory" : e.message;
+    throw new Error(`Cannot read ${filename}: ${reason}`);
+  }
+}
+
 async function compileFromFile(filename, outputType, outputFilename) {
   try {
-    const buffer = await fs.readFile(filename);
-    const compiled = compile(buffer.toString(), outputType);
+    const source = await readSource(filename);
+    const compiled = compile(source, outputType);
     const output = stringify(compiled, "kind") || String(compiled);
 
     if (outputFilename) {
@@ -43,8 +58,7 @@ async function compileFromFile(filename, outputType, outputFilename) {
       console.log(output);
     }
   } catch (e) {
-    console.error(`\u001b[31m${e}\u001b[39m`);
-    process.exitCode = 1;
+    reportError(String(e));
   }
 }
 

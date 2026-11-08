@@ -139,7 +139,7 @@ describe("The compiler pipeline", () => {
   })
 
   it("throws on unknown output type", () => {
-    assert.throws(() => compile("let x = 1;", "wat"), /Unknown output type/)
+    assert.throws(() => compile("let x = 1;", "wat"), /Unknown output type "wat"\. Expected one of: parsed, analyzed, optimized, js/)
   })
 
   it("throws on syntax errors", () => {

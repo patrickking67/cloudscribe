@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -48,4 +48,32 @@ test("CLI rejects an output flag without a filename", () => {
   const result = run([example.pathname, "js", "--out"]);
   assert.equal(result.status, 1);
   assert.match(result.stdout, /Usage:/);
+});
+
+test("CLI reports a missing source file without a stack trace", () => {
+  const result = run(["does-not-exist.csc", "js"]);
+  assert.equal(result.status, 1);
+  assert.equal(result.stderr.trim(), "Error: Cannot read does-not-exist.csc: file not found");
+});
+
+test("CLI reports a directory passed as the source file", () => {
+  const result = run([tmpdir(), "js"]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Cannot read .*: is a directory/);
+});
+
+test("CLI lists the valid output types for an unknown one", () => {
+  const result = run([example.pathname, "wasm"]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Unknown output type "wasm"\. Expected one of: parsed, analyzed, optimized, js/);
+});
+
+test("CLI prints compile errors without color codes when stderr is not a terminal", () => {
+  const directory = mkdtempSync(join(tmpdir(), "cloudscribe-err-"));
+  const source = join(directory, "bad.csc");
+  writeFileSync(source, "print(missing);\n");
+  const result = run([source, "js"]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Identifier missing not declared/);
+  assert.doesNotMatch(result.stderr, /\u001b\[/);
 });

@@ -14,9 +14,11 @@ import generate from "./generator.js"
  * @returns {string|object} The compilation result at the requested stage.
  * @throws {Error} On unknown output type or compilation errors.
  */
+const OUTPUT_TYPES = ["parsed", "analyzed", "optimized", "js"]
+
 export default function compile(source, outputType) {
-  if (!["parsed", "analyzed", "optimized", "js"].includes(outputType)) {
-    throw new Error("Unknown output type")
+  if (!OUTPUT_TYPES.includes(outputType)) {
+    throw new Error(`Unknown output type ${JSON.stringify(outputType)}. Expected one of: ${OUTPUT_TYPES.join(", ")}`)
   }
   const match = parse(source)
   if (outputType === "parsed") return "Syntax is ok"
