@@ -480,7 +480,11 @@ export default function analyze(match) {
     Primary_member(primary, _dot, id) {
       const object = primary.rep();
       const fieldName = id.sourceString;
-      return core.memberExpression(object, fieldName);
+      const member = core.memberExpression(object, fieldName);
+      // Strings and arrays expose their length as an int.
+      const hasLength = object.type === core.stringType || object.type?.kind === "ArrayType";
+      if (fieldName === "length" && hasLength) member.type = core.intType;
+      return member;
     },
 
     Primary_id(id) {

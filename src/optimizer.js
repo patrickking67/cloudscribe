@@ -177,7 +177,7 @@ const visitors = {
 
   MemberExpression(me) {
     const object = visit(me.object);
-    return core.memberExpression(object, me.field);
+    return { ...core.memberExpression(object, me.field), type: me.type };
   },
 
   ArrayExpression(ae) {
