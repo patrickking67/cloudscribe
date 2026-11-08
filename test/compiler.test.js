@@ -105,6 +105,42 @@ describe("The compiler pipeline", () => {
     assert.equal(result.stdout, "hello, world\nn=1\n9\n25\n3\nbefore\n")
   })
 
+  it("does not leak declarations from a folded if branch into the outer scope", () => {
+    const source = `
+      if true { let y = 2; print(y); } else { print(0); }
+      let y = 3;
+      print(y);
+    `
+    const result = runAsModule(compile(source, "js"))
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "2\n3\n")
+  })
+
+  it("compiles print used as a value or inside an expression", () => {
+    const source = `
+      let say = print;
+      say("first");
+      let ignored = print("second");
+    `
+    const result = runAsModule(compile(source, "js"))
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "first\nsecond\n")
+  })
+
+  it("types length on strings and arrays as an int", () => {
+    const source = `
+      let servers = ["web", "db"];
+      let name = "cache";
+      print(servers.length + 1);
+      print(name.length * 2);
+    `
+    const analyzed = compile(source, "analyzed")
+    assert.equal(analyzed.statements[2].args[0].left.type, "int")
+    const result = runAsModule(compile(source, "js"))
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "3\n10\n")
+  })
+
   it("compiles every example to JavaScript that runs as an ES module", () => {
     const dir = new URL("../examples/", import.meta.url)
     const files = readdirSync(dir).filter(name => name.endsWith(".csc"))
@@ -117,7 +153,7 @@ describe("The compiler pipeline", () => {
   })
 
   it("throws on unknown output type", () => {
-    assert.throws(() => compile("let x = 1;", "wat"), /Unknown output type/)
+    assert.throws(() => compile("let x = 1;", "wat"), /Unknown output type "wat"\. Expected one of: parsed, analyzed, optimized, js/)
   })
 
   it("throws on syntax errors", () => {

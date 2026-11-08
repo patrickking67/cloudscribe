@@ -1,8 +1,32 @@
 /**
- * Code generator — transpiles the optimized CloudScribe IR into JavaScript.
+ * Code generator: transpiles the optimized CloudScribe IR into JavaScript.
  * @module generator
  */
 import { voidType } from "./core.js"
+
+/**
+ * Runtime support for the built-in functions other than print. Each entry is
+ * emitted at the top of the output only when the program uses that built-in.
+ */
+const RUNTIME = {
+  env: { code: "const __cs_env = (name) => process.env[name] ?? null;" },
+  readFile: { imports: ["fs"], code: 'const __cs_readFile = (path) => __cs_fs.readFileSync(path, "utf8");' },
+  writeFile: { imports: ["fs"], code: 'const __cs_writeFile = (path, text) => { __cs_fs.writeFileSync(path, text, "utf8"); };' },
+  fileExists: { imports: ["fs"], code: "const __cs_fileExists = (path) => __cs_fs.existsSync(path);" },
+  toInt: {
+    code: "const __cs_toInt = (text) => (/^\\s*[+-]?\\d+\\s*$/.test(text) ? Number.parseInt(text, 10) : null);"
+  },
+  shell: {
+    imports: ["childProcess"],
+    code: 'const __cs_shell = (command) => __cs_childProcess.execSync(command, { encoding: "utf8" }).replace(/\\n$/, "");'
+  },
+  exit: { code: "const __cs_exit = (code) => process.exit(code);" }
+}
+
+const IMPORTS = {
+  fs: 'import * as __cs_fs from "node:fs";',
+  childProcess: 'import * as __cs_childProcess from "node:child_process";'
+}
 
 /**
  * Generates JavaScript source code from an optimized CloudScribe program AST.
@@ -14,6 +38,8 @@ export default function generate(program) {
   const map = new Map()
   // Innermost function or task boundary, used to lower `return` inside a task.
   const returnTargets = []
+  // Built-ins referenced by the program, in first-use order.
+  const usedRuntime = new Set()
 
   function jsName(e) {
     if (!map.has(e.name)) map.set(e.name, map.size)
@@ -24,6 +50,13 @@ export default function generate(program) {
     if (e == null) return ""
     if (typeof e === "number" || typeof e === "boolean") return String(e)
     if (typeof e === "string") return e
+    // The built-in print has no JavaScript binding of its own, so a reference
+    // to it (as a value or inside an expression) must point at console.log.
+    if (e.intrinsic && e.name === "print") return "console.log"
+    if (e.intrinsic && RUNTIME[e.name]) {
+      usedRuntime.add(e.name)
+      return `__cs_${e.name}`
+    }
     if (e.name) return jsName(e)
     switch (e.kind) {
       case "BinaryExpression": {
@@ -83,6 +116,11 @@ export default function generate(program) {
       case "ShortIfStatement":
         out.push(`if (${exp(node.test)}) {`)
         node.consequent.forEach(gen)
+        out.push(`}`)
+        break
+      case "Block":
+        out.push(`{`)
+        node.statements.forEach(gen)
         out.push(`}`)
         break
       case "WhileStatement":
@@ -174,5 +212,7 @@ export default function generate(program) {
   }
 
   gen(program)
-  return out.join("\n")
+  const runtime = [...usedRuntime].map(name => RUNTIME[name])
+  const imports = [...new Set(runtime.flatMap(r => r.imports ?? []))].map(name => IMPORTS[name])
+  return [...imports, ...runtime.map(r => r.code), ...out].join("\n")
 }

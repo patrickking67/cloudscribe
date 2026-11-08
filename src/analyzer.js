@@ -55,7 +55,8 @@ export default function analyze(match) {
   }
 
   function mustNotAlreadyBeDeclared(name, at) {
-    must(!context.lookup(name), `Identifier ${name} already declared`, at)
+    const existing = context.lookup(name)
+    must(!existing || existing.shadowable, `Identifier ${name} already declared`, at)
   }
 
   function mustHaveBeenFound(entity, name, at) {
@@ -160,6 +161,7 @@ export default function analyze(match) {
 
     Statement_assign(primary, _eq, exp, _semicolon) {
       const target = primary.rep()
+      must(target?.kind !== "Task", `Cannot assign to task ${target.name}`, { at: primary })
       mustBeMutable(target, { at: primary })
       const source = exp.rep()
       mustHaveType(source.type, target.type, { at: exp }, "assignment")
@@ -479,7 +481,11 @@ export default function analyze(match) {
     Primary_member(primary, _dot, id) {
       const object = primary.rep();
       const fieldName = id.sourceString;
-      return core.memberExpression(object, fieldName);
+      const member = core.memberExpression(object, fieldName);
+      // Strings and arrays expose their length as an int.
+      const hasLength = object.type === core.stringType || object.type?.kind === "ArrayType";
+      if (fieldName === "length" && hasLength) member.type = core.intType;
+      return member;
     },
 
     Primary_id(id) {

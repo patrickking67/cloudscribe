@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cloudscribe-site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "4101", "--directory", "docs"],
+      "port": 4101
+    }
+  ]
+}

@@ -10,14 +10,16 @@
 
 <p align="center">
   <a href="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml"><img src="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D20-green.svg" alt="Node"></a>
-  <a href="https://patrickking67.github.io/cloudscribe/"><img src="https://img.shields.io/badge/docs-website-purple" alt="Website"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <a href="https://patrickking67.github.io/cloudscribe/"><strong>Try it in the browser playground</strong></a>
 </p>
 
 ---
 
-CloudScribe is a small language for the kind of scripts that check servers, loop over services and report results. It adds what shell and plain JavaScript scripts usually skip: declared types, scoped names and compile-time checks, so a typo or a string where a number belongs fails before anything runs. A `.csc` file goes through a five-stage compiler (Ohm grammar, parser, semantic analyzer, optimizer, code generator) and comes out as readable JavaScript that runs on Node.js. The whole compiler is about 1,300 lines with no build step, so each stage is easy to read on its own.
+CloudScribe is a small language for the kind of scripts that check servers, loop over services and report results. It adds what shell and plain JavaScript scripts usually skip: declared types, scoped names and compile-time checks, so a typo or a string where a number belongs fails before anything runs. A `.csc` file goes through a five-stage compiler (Ohm grammar, parser, semantic analyzer, optimizer, code generator) and comes out as readable JavaScript that runs on Node.js. The whole compiler is about 1,500 lines with no build step, so each stage is easy to read on its own. It ships with a CLI that can type-check, compile or run a file, a few built-ins for environment variables, files and shell commands, and a [playground](https://patrickking67.github.io/cloudscribe/) that runs the same compiler in the browser.
 
 ## Example
 
@@ -48,7 +50,7 @@ task checkServers {
 }
 ```
 
-`node src/cloudscribe.js checks.csc js` prints:
+`npx cloudscribe checks.csc` prints:
 
 ```js
 const MAX_FAILURES_0 = 1;
@@ -74,10 +76,19 @@ console.log(("Failures: " + failures_4));
 }
 ```
 
-Names get numeric suffixes so CloudScribe identifiers can never clash with JavaScript reserved words. A task becomes a block, and `return` inside a task becomes a labeled `break`. Type errors stop compilation with the source location:
+Names get numeric suffixes so CloudScribe identifiers can never clash with JavaScript reserved words. A task becomes a block, and `return` inside a task becomes a labeled `break`. `npx cloudscribe checks.csc --run` compiles and runs it:
 
 ```text
-Error: Line 2, col 11:
+OK 200
+OK 200
+Failures: 1
+```
+
+Type errors stop compilation with the source location and exit code 1:
+
+```text
+$ npx cloudscribe retry.csc --check
+error: retry.csc: Line 2, col 11:
   1 | let retries = 3;
 > 2 | retries = "three";
                 ^~~~~~~
@@ -94,28 +105,34 @@ git clone https://github.com/patrickking67/cloudscribe.git
 cd cloudscribe
 npm ci
 
-# Compile an example and print the JavaScript
-node src/cloudscribe.js examples/data_backup.csc js
-
-# Compile to a file and run it
-node src/cloudscribe.js examples/data_backup.csc js --out backup.mjs
-node backup.mjs
+npx cloudscribe examples/config_check.csc --check    # type-check only
+npx cloudscribe examples/config_check.csc            # print the JavaScript
+npx cloudscribe examples/config_check.csc --run      # compile and run
+npx cloudscribe examples/config_check.csc --out check.mjs
+node check.mjs
 ```
 
-The CLI takes a source file and an output stage:
+Inside the repository `npx cloudscribe` runs the local CLI. To put `cloudscribe` on your path everywhere, run `npm link` (or `npm install -g .`) from the repository root. The package is not published to the npm registry.
+
+## Command line
 
 ```text
-cloudscribe <filename> <output> [--out <filename>]
+cloudscribe <file.csc> [stage] [--out <file>]
+cloudscribe <file.csc> --check
+cloudscribe <file.csc> --run [--out <file>]
 ```
 
-| Output      | Result                                         |
-|-------------|------------------------------------------------|
-| `parsed`    | Prints `Syntax is ok` or the syntax error      |
-| `analyzed`  | Prints the typed AST                           |
-| `optimized` | Prints the AST after constant folding          |
-| `js`        | Prints the generated JavaScript                |
+| Option or stage | Result |
+|-----------------|--------|
+| (none) or `js`  | Prints the generated JavaScript |
+| `parsed`        | Prints `Syntax is ok` or the syntax error |
+| `analyzed`      | Prints the typed AST |
+| `optimized`     | Prints the AST after constant folding |
+| `--check`       | Type-checks without generating code and prints `<file>: ok` |
+| `--run`         | Compiles and runs the program with Node.js in the current directory |
+| `--out <file>`  | Writes the output to a file instead of stdout (with `--run`, keeps the compiled file) |
 
-`npm run compile -- <filename> <output>` runs the same CLI.
+Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file that cannot be read or written. With `--run`, the exit code is the program's own. Errors go to stderr, in red only when stderr is a terminal.
 
 ## Language
 
@@ -124,9 +141,32 @@ cloudscribe <filename> <output> [--out <filename>]
 - **Structure:** `task name { ... }` blocks for workflows and `function name(x: T): R { ... }` for reusable logic.
 - **Control flow:** `if`/`else`, `while`, `for x in array`, `break`, `return`.
 - **Operators:** arithmetic `+ - * / % **`, comparison `== != < <= > >=`, logical `&& || !`, bitwise `& | ^`, conditional `a ? b : c`, optionals `some x` and `x ?? fallback`, plus `++` and `--` statements.
-- **Built-in:** `print(value)`, compiled to `console.log`.
+- **Members:** `length` on strings and arrays, typed `int`.
+- **Built-ins:** see the next section.
 
 The full rules are in the [language specification](docs/language-spec.md).
+
+## Built-in functions
+
+| Function | Type | Behavior |
+|----------|------|----------|
+| `print(value)` | `(any) -> void` | Writes a line to stdout |
+| `env(name)` | `(string) -> string?` | Reads an environment variable, empty when unset |
+| `readFile(path)` | `(string) -> string` | Reads a UTF-8 file |
+| `writeFile(path, text)` | `(string, string) -> void` | Writes a UTF-8 file |
+| `fileExists(path)` | `(string) -> boolean` | Checks that a path exists |
+| `toInt(text)` | `(string) -> int?` | Parses a whole number, empty if the text is not one |
+| `shell(command)` | `(string) -> string` | Runs a shell command and returns its stdout |
+| `exit(code)` | `(int) -> void` | Stops the program with an exit code |
+
+Built-ins that can come back empty return an optional, so the compiler makes you handle the empty case with `??`:
+
+```csc
+const configPath = env("CONFIG_PATH") ?? "config.json";
+const retries = toInt(env("RETRIES") ?? "3") ?? 3;
+```
+
+The generated JavaScript only includes support code for the built-ins a program uses. Everything except `print` needs Node.js, so the playground compiles such programs but does not run them.
 
 ## Static checks
 
@@ -137,7 +177,7 @@ The analyzer rejects a program before code generation for:
 - Non-boolean `if`, `while` and `?:` conditions, and `for ... in` over a non-array
 - Invalid operands for arithmetic, bitwise, unary and `??` operators
 - Calls to non-functions and calls with the wrong number of arguments
-- Assignment, `++` or `--` on a `const` or a loop variable
+- Assignment, `++` or `--` on a `const` or a loop variable, and assignment to a task
 - `break` outside a loop and `return` outside a function or task
 
 ## Compiler pipeline
@@ -155,30 +195,40 @@ source.csc -> parser -> analyzer -> optimizer -> generator -> JavaScript
 | Generator | `src/generator.js`    | Emits JavaScript, renaming identifiers and lowering tasks to blocks  |
 | Core      | `src/core.js`         | AST node constructors, built-in types and the standard library       |
 | Pipeline  | `src/compiler.js`     | Runs the stages up to the requested output                           |
-| CLI       | `src/cloudscribe.js`  | Reads a file, compiles it, writes to stdout or `--out`               |
+| CLI       | `src/cloudscribe.js`  | Reads a file, then checks, compiles or runs it                       |
 
 ## Tests
 
 ```bash
-npm test             # 199 tests with Node's built-in coverage report
+npm run check        # everything CI runs: repo checks, playground freshness, tests
+npm test             # 243 tests with Node's built-in coverage report for src/
 npm run test:only    # same tests, no coverage
-npm run check:repo   # repository convention checks
 ```
 
-Tests use the built-in `node:test` runner, with one file per compiler stage plus pipeline and CLI tests. The pipeline tests compile every file in `examples/` and run the output as an ES module, so generated code is checked by running it, not by matching strings. Line coverage is about 98%.
+Tests use the built-in `node:test` runner: one file per compiler stage, plus the pipeline, CLI, built-ins, examples, playground and site. Every file in `examples/` is compiled, run in an empty directory and compared with its expected output in `test/fixtures/examples/`. Line coverage of `src/` is 98.8%.
+
+## Playground and site
+
+The site in `docs/` is static and deployed to GitHub Pages by `.github/workflows/pages.yml`. Its playground imports a browser copy of the compiler from `docs/playground/`, which `npm run build:playground` generates from `src/` and the vendored `ohm-js` build. A test fails if that copy is out of date, so rerun the script and commit the result after any change in `src/`.
+
+Preview locally with `python3 -m http.server 4101 --directory docs` and open http://localhost:4101/.
 
 ## Project layout
 
 ```text
 cloudscribe/
-|-- src/                  compiler stages and CLI (see the pipeline table)
-|-- test/                 node:test suites, one per stage plus compiler and CLI
-|-- examples/             sample .csc programs, all compiled and run in tests
+|-- src/                    compiler stages and CLI (see the pipeline table)
+|-- test/                   node:test suites and expected example output
+|-- examples/               sample .csc programs, all compiled and run in tests
 |-- docs/
-|   |-- language-spec.md  language rules and compatibility contract
-|   `-- index.html        project website (GitHub Pages)
-|-- scripts/check-repo.sh repository convention checks used in CI
-`-- .github/workflows/    CI (tests on Node 20, 22, 24) and Pages deploy
+|   |-- index.html          project site with the playground (GitHub Pages)
+|   |-- playground/         generated browser copy of the compiler
+|   |-- language-spec.md    language rules and compatibility contract
+|   `-- llms.txt            summary for LLM tools, also at the repo root
+|-- scripts/
+|   |-- build-playground.mjs  regenerates docs/playground/
+|   `-- check-repo.sh         repository convention checks
+`-- .github/workflows/      CI (Node 20, 22, 24) and Pages deploy
 ```
 
 Runtime dependencies are [ohm-js](https://www.npmjs.com/package/ohm-js) for parsing and [graph-stringify](https://www.npmjs.com/package/graph-stringify) for printing ASTs.

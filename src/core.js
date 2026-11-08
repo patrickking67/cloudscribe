@@ -23,7 +23,7 @@ export function taskDeclaration(task) {
   return { kind: "TaskDeclaration", task }
 }
 
-/** Creates a task entity — the primary automation abstraction. */
+/** Creates a task entity, the primary automation abstraction. */
 export function task(name, body) {
   return { kind: "Task", name, body }
 }
@@ -114,6 +114,11 @@ export function shortReturnStatement() {
   return { kind: "ShortReturnStatement" }
 }
 
+/** Creates a bare block of statements with its own scope. */
+export function block(statements) {
+  return { kind: "Block", statements }
+}
+
 /** Creates a while loop with a boolean test and body. */
 export function whileStatement(test, body) {
   return { kind: "WhileStatement", test, body }
@@ -165,13 +170,30 @@ export const booleanType = "boolean"
 export const voidType = "void"
 export const anyType = "any"
 
-export const standardLibrary = Object.freeze({
-  print: {
+function builtIn(name, paramTypes, returnType, extra = {}) {
+  return Object.freeze({
     kind: "Function",
-    name: "print",
-    type: { kind: "FunctionType", paramTypes: [anyType], returnType: voidType },
-    intrinsic: true
-  }
+    name,
+    type: { kind: "FunctionType", paramTypes, returnType },
+    intrinsic: true,
+    ...extra
+  })
+}
+
+/**
+ * Built-in functions available in every program. `print` is reserved; the
+ * others were added later, so a program may declare its own binding with the
+ * same name and shadow them.
+ */
+export const standardLibrary = Object.freeze({
+  print: builtIn("print", [anyType], voidType),
+  env: builtIn("env", [stringType], optionalType(stringType), { shadowable: true }),
+  readFile: builtIn("readFile", [stringType], stringType, { shadowable: true }),
+  writeFile: builtIn("writeFile", [stringType, stringType], voidType, { shadowable: true }),
+  fileExists: builtIn("fileExists", [stringType], booleanType, { shadowable: true }),
+  toInt: builtIn("toInt", [stringType], optionalType(intType), { shadowable: true }),
+  shell: builtIn("shell", [stringType], stringType, { shadowable: true }),
+  exit: builtIn("exit", [intType], voidType, { shadowable: true })
 })
 
 Number.prototype.type = intType

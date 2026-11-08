@@ -4,7 +4,7 @@ import generate from "../src/generator.js"
 import { voidType } from "../src/core.js"
 
 describe("The generator", () => {
-  // — Expression coverage —
+  // Expression coverage
 
   it("exp: null/undefined produces empty string", () => {
     const prog = {
@@ -140,7 +140,7 @@ describe("The generator", () => {
     assert.throws(() => generate(prog), /generator exp: unhandled expression kind FooBar/)
   })
 
-  // — Statement coverage —
+  // Statement coverage
 
   it("VariableDeclaration uses const for immutable variables", () => {
     const prog = {
@@ -409,6 +409,27 @@ describe("The generator", () => {
       }]
     }
     assert.equal(generate(prog).trim(), "h_0(7);")
+  })
+
+  it("exp: a reference to the print intrinsic becomes console.log", () => {
+    const print = { kind: "Function", name: "print", intrinsic: true }
+    const prog = {
+      kind: "Program",
+      statements: [{ kind: "VariableDeclaration", variable: { name: "p" }, initializer: print }]
+    }
+    assert.equal(generate(prog), "let p_0 = console.log;")
+  })
+
+  it("Block: emits a bare braced block", () => {
+    const prog = {
+      kind: "Program",
+      statements: [
+        { kind: "Block", statements: [
+          { kind: "VariableDeclaration", variable: { name: "y" }, initializer: 2 }
+        ] }
+      ]
+    }
+    assert.equal(generate(prog), "{\nlet y_0 = 2;\n}")
   })
 
   it("unknown node kind throws", () => {

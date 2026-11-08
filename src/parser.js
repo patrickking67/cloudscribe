@@ -1,5 +1,5 @@
 /**
- * Parser module — uses Ohm to produce a match object from CloudScribe source.
+ * Parser module: uses Ohm to produce a match object from CloudScribe source.
  * @module parser
  */
 

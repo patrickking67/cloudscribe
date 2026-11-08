@@ -1,0 +1,3 @@
+Config: config.json
+Retries: 3
+Missing config, nothing to check

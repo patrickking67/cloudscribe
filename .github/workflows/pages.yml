@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Validate repository
-        run: npm ci && npm run check:repo
+        run: npm ci && npm run check
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
