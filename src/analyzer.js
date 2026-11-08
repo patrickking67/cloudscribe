@@ -55,7 +55,8 @@ export default function analyze(match) {
   }
 
   function mustNotAlreadyBeDeclared(name, at) {
-    must(!context.lookup(name), `Identifier ${name} already declared`, at)
+    const existing = context.lookup(name)
+    must(!existing || existing.shadowable, `Identifier ${name} already declared`, at)
   }
 
   function mustHaveBeenFound(entity, name, at) {
