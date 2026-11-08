@@ -243,6 +243,89 @@ describe("The generator", () => {
     assert.match(out, /console\.log\("go"\);/)
   })
 
+  it("TaskDeclaration lowers return to a labeled break", () => {
+    const prog = {
+      kind: "Program",
+      statements: [{
+        kind: "TaskDeclaration",
+        task: { name: "deploy", body: [{ kind: "ShortReturnStatement" }] }
+      }]
+    }
+    assert.equal(generate(prog), "// task: deploy\ndeploy_0: {\nbreak deploy_0;\n}")
+  })
+
+  it("TaskDeclaration keeps a returned value's evaluation before the break", () => {
+    const f = { kind: "Function", name: "f", type: { returnType: voidType } }
+    const prog = {
+      kind: "Program",
+      statements: [{
+        kind: "TaskDeclaration",
+        task: {
+          name: "t",
+          body: [{ kind: "ReturnStatement", expression: { kind: "FunctionCall", callee: f, args: [] } }]
+        }
+      }]
+    }
+    assert.match(generate(prog), /t_\d+: {\nf_\d+\(\);\nbreak t_\d+;\n}/)
+  })
+
+  it("FunctionDeclaration inside a task still uses return", () => {
+    const prog = {
+      kind: "Program",
+      statements: [{
+        kind: "TaskDeclaration",
+        task: {
+          name: "t",
+          body: [{
+            kind: "FunctionDeclaration",
+            fun: { name: "g", params: [], body: [{ kind: "ShortReturnStatement" }] }
+          }]
+        }
+      }]
+    }
+    const out = generate(prog)
+    assert.match(out, /return;/)
+    assert.doesNotMatch(out, /break/)
+  })
+
+  it("exp: some is the plain value at runtime", () => {
+    const prog = {
+      kind: "Program",
+      statements: [{
+        kind: "VariableDeclaration",
+        variable: { name: "o" },
+        initializer: { kind: "UnaryExpression", op: "some", operand: { name: "x" } }
+      }]
+    }
+    assert.equal(generate(prog), "let o_0 = x_1;")
+  })
+
+  it("exp: parenthesizes a unary base of **", () => {
+    const pow = left => ({
+      kind: "Program",
+      statements: [{
+        kind: "VariableDeclaration",
+        variable: { name: "y" },
+        initializer: { kind: "BinaryExpression", op: "**", left, right: 2 }
+      }]
+    })
+    assert.equal(generate(pow({ kind: "UnaryExpression", op: "-", operand: { name: "x" } })),
+      "let y_0 = ((-(x_1)) ** 2);")
+    assert.equal(generate(pow(-5)), "let y_0 = ((-5) ** 2);")
+    assert.equal(generate(pow(5)), "let y_0 = (5 ** 2);")
+  })
+
+  it("emits bare expressions and folded literals as statements", () => {
+    const prog = {
+      kind: "Program",
+      statements: [
+        { kind: "BinaryExpression", op: "+", left: { kind: "Variable", name: "x" }, right: 1 },
+        3
+      ]
+    }
+    assert.equal(generate(prog), "(x_0 + 1);\n3;")
+  })
+
   it("FunctionDeclaration", () => {
     const prog = {
       kind: "Program",

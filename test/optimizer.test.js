@@ -70,6 +70,28 @@ describe("The optimizer", () => {
     
   });
 
+  it("does not fold string literals into invalid source text", () => {
+    const init = val('let s = "a" + "b";');
+    assert.equal(init.kind, "BinaryExpression");
+    assert.equal(init.left, '"a"');
+    assert.equal(init.right, '"b"');
+    assert.equal(val('let s = "n=" + 1;').kind, "BinaryExpression");
+  });
+
+  it("splices a constant if branch into the enclosing block", () => {
+    const ir = opt('if true { print(1); print(2); } else { print(3); } print(4);');
+    assert.equal(ir.statements.length, 3);
+    assert.ok(ir.statements.every(s => s.kind === "FunctionCall"));
+    assert.deepEqual(ir.statements.map(s => s.args[0]), [1, 2, 4]);
+  });
+
+  it("splices the else branch of a constant false if", () => {
+    const ir = opt('task t { if false { print(1); } else { print(2); } }');
+    const body = ir.statements[0].task.body;
+    assert.equal(body.length, 1);
+    assert.equal(body[0].args[0], 2);
+  });
+
   it("visits for‑loops, functions and tasks without mutation", () => {
     const src = `
       function add(a: int, b: int): int { return a + b; }

@@ -17,144 +17,172 @@
 
 ---
 
-## Overview
+CloudScribe is a small language for the kind of scripts that check servers, loop over services and report results. It adds what shell and plain JavaScript scripts usually skip: declared types, scoped names and compile-time checks, so a typo or a string where a number belongs fails before anything runs. A `.csc` file goes through a five-stage compiler (Ohm grammar, parser, semantic analyzer, optimizer, code generator) and comes out as readable JavaScript that runs on Node.js. The whole compiler is about 1,300 lines with no build step, so each stage is easy to read on its own.
 
-CloudScribe is a small typed automation language for people who want scripts to stay readable without giving up static checks. It has task blocks for operational workflows, functions with type annotations, arrays, optionals, conditionals, loops, and a compiler pipeline that lowers `.csc` files to readable JavaScript.
+## Example
 
-The compiler is intentionally easy to inspect: parse with [Ohm](https://ohmjs.org/), analyze types and scopes, optimize the typed AST, then generate JavaScript.
+`checks.csc`:
 
-## Quick Start
+```csc
+const MAX_FAILURES = 1;
 
-**Prerequisites:** [Node.js](https://nodejs.org/) >= 20
+function isHealthy(code: int): boolean {
+  return code == 200;
+}
+
+task checkServers {
+  let codes = [200, 503, 200];
+  let failures = 0;
+  for code in codes {
+    if isHealthy(code) {
+      print("OK " + code);
+    } else {
+      failures++;
+    }
+  }
+  if failures > MAX_FAILURES {
+    print("Too many failures");
+    return;
+  }
+  print("Failures: " + failures);
+}
+```
+
+`node src/cloudscribe.js checks.csc js` prints:
+
+```js
+const MAX_FAILURES_0 = 1;
+function isHealthy_1(code_2) {
+return (code_2 == 200);
+}
+// task: checkServers
+checkServers_5: {
+let codes_3 = [200, 503, 200];
+let failures_4 = 0;
+for (const code_2 of codes_3) {
+if (isHealthy_1(code_2)) {
+console.log(("OK " + code_2));
+} else {
+failures_4++;
+}
+}
+if ((failures_4 > MAX_FAILURES_0)) {
+console.log("Too many failures");
+break checkServers_5;
+}
+console.log(("Failures: " + failures_4));
+}
+```
+
+Names get numeric suffixes so CloudScribe identifiers can never clash with JavaScript reserved words. A task becomes a block, and `return` inside a task becomes a labeled `break`. Type errors stop compilation with the source location:
+
+```text
+Error: Line 2, col 11:
+  1 | let retries = 3;
+> 2 | retries = "three";
+                ^~~~~~~
+  3 |
+Expected assignment of type int, got string
+```
+
+## Quick start
+
+Requires [Node.js](https://nodejs.org/) 20 or later.
 
 ```bash
 git clone https://github.com/patrickking67/cloudscribe.git
 cd cloudscribe
-npm install
+npm ci
 
-# Compile a script to JavaScript
+# Compile an example and print the JavaScript
 node src/cloudscribe.js examples/data_backup.csc js
 
-# Run the test suite with coverage
-npm test
+# Compile to a file and run it
+node src/cloudscribe.js examples/data_backup.csc js --out backup.mjs
+node backup.mjs
 ```
 
-## Usage
+The CLI takes a source file and an output stage:
 
-```
+```text
 cloudscribe <filename> <output> [--out <filename>]
 ```
 
-| Output     | Description                        |
-|------------|------------------------------------|
-| `parsed`   | Verify syntax correctness          |
-| `analyzed` | Show the typed abstract syntax tree|
-| `optimized`| Show the optimized IR              |
-| `js`       | Compile to JavaScript              |
+| Output      | Result                                         |
+|-------------|------------------------------------------------|
+| `parsed`    | Prints `Syntax is ok` or the syntax error      |
+| `analyzed`  | Prints the typed AST                           |
+| `optimized` | Prints the AST after constant folding          |
+| `js`        | Prints the generated JavaScript                |
 
-## Language at a Glance
+`npm run compile -- <filename> <output>` runs the same CLI.
 
-The [language specification](docs/language-spec.md) defines the supported syntax, type rules, operator behavior, diagnostics, and compilation contract.
+## Language
 
-```csc
-// Tasks group operational workflows
-task deployService {
-  let services = ["web", "database", "cache"];
-  for service in services {
-    print("Deploying: " + service);
-  }
-}
+- **Types:** `int`, `string`, `boolean`, arrays `[T]`, optionals `T?`, and function types `(T) -> R`. Variable types are inferred from the initializer; parameters and return types are declared.
+- **Bindings:** `let` (mutable) and `const` (compiles to a JavaScript `const`).
+- **Structure:** `task name { ... }` blocks for workflows and `function name(x: T): R { ... }` for reusable logic.
+- **Control flow:** `if`/`else`, `while`, `for x in array`, `break`, `return`.
+- **Operators:** arithmetic `+ - * / % **`, comparison `== != < <= > >=`, logical `&& || !`, bitwise `& | ^`, conditional `a ? b : c`, optionals `some x` and `x ?? fallback`, plus `++` and `--` statements.
+- **Built-in:** `print(value)`, compiled to `console.log`.
 
-// Functions with type annotations
-function backupFile(filename: string): boolean {
-  print("Backing up: " + filename);
-  return true;
-}
+The full rules are in the [language specification](docs/language-spec.md).
 
-// Static typing with inference
-let count = 42;              // int
-let name = "server-01";      // string
-const MAX_RETRIES = 3;       // immutable (compiles to const)
-let ports = [80, 443, 22];   // [int]
+## Static checks
 
-// Rich expressions
-let status = healthy ? "OK" : "CRITICAL";
-let timeout = configTimeout ?? 30;
-let result = (base ** exponent) % modulus;
-```
+The analyzer rejects a program before code generation for:
 
-**Type system:** `int`, `string`, `boolean`, `[T]` (arrays), `T?` (optionals), `(T) -> R` (function types)
-
-## Static Checks
-
-CloudScribe validates scripts before JavaScript generation. The analyzer catches:
-
-- Redeclared or undeclared identifiers
-- Assignment, argument, return, array element, conditional branch, and comparison type mismatches
-- Non-boolean `if` and `while` conditions
-- Non-array `for...in` collections
-- Invalid arithmetic, bitwise, unary, and null-coalescing operands
+- Undeclared, redeclared or unknown names, including unknown type names
+- Type mismatches in assignments, arguments, returns, array elements, conditional branches and comparisons
+- Non-boolean `if`, `while` and `?:` conditions, and `for ... in` over a non-array
+- Invalid operands for arithmetic, bitwise, unary and `??` operators
 - Calls to non-functions and calls with the wrong number of arguments
-- `break` outside loops and invalid assignment to `const`
+- Assignment, `++` or `--` on a `const` or a loop variable
+- `break` outside a loop and `return` outside a function or task
 
-## Compiler Architecture
+## Compiler pipeline
 
-```
-Source (.csc) -> Parser -> Analyzer -> Optimizer -> Generator -> JavaScript
-```
-
-| Stage         | File               | Description                                   |
-|---------------|--------------------|-----------------------------------------------|
-| **Grammar**   | `cloudscribe.ohm`  | PEG grammar definition ([Ohm](https://ohmjs.org/))      |
-| **Parser**    | `parser.js`        | Produces an Ohm match result from source      |
-| **Analyzer**  | `analyzer.js`      | Type checking, scope resolution, validation   |
-| **Optimizer** | `optimizer.js`     | Constant folding, dead code elimination       |
-| **Generator** | `generator.js`     | Transpiles optimized IR to clean JavaScript   |
-| **Core**      | `core.js`          | AST node constructors and type system         |
-
-## Project Structure
-
-```
-cloudscribe/
-|-- src/
-|   |-- cloudscribe.ohm       # PEG grammar
-|   |-- cloudscribe.js        # CLI entry point
-|   |-- compiler.js           # Pipeline orchestrator
-|   |-- parser.js             # Ohm-based parser
-|   |-- analyzer.js           # Semantic analysis & type checking
-|   |-- optimizer.js          # Constant folding & dead code elimination
-|   |-- generator.js          # JavaScript code generator
-|   `-- core.js               # AST nodes & type system
-|-- test/                     # Tests across all compiler stages
-|-- examples/                 # Example .csc programs
-|-- docs/                     # Project website (Tailwind CSS)
-|-- package.json
-`-- LICENSE
+```text
+source.csc -> parser -> analyzer -> optimizer -> generator -> JavaScript
 ```
 
-## Tech Stack
+| Stage     | File                  | What it does                                                         |
+|-----------|-----------------------|----------------------------------------------------------------------|
+| Grammar   | `src/cloudscribe.ohm` | PEG grammar for [Ohm](https://ohmjs.org/), including operator precedence |
+| Parser    | `src/parser.js`       | Matches source against the grammar and reports syntax errors         |
+| Analyzer  | `src/analyzer.js`     | Resolves scopes, infers and checks types, builds the typed AST       |
+| Optimizer | `src/optimizer.js`    | Folds constant numeric and boolean expressions, drops dead branches and `while false` loops |
+| Generator | `src/generator.js`    | Emits JavaScript, renaming identifiers and lowering tasks to blocks  |
+| Core      | `src/core.js`         | AST node constructors, built-in types and the standard library       |
+| Pipeline  | `src/compiler.js`     | Runs the stages up to the requested output                           |
+| CLI       | `src/cloudscribe.js`  | Reads a file, compiles it, writes to stdout or `--out`               |
 
-- **JavaScript** (ES modules) on **Node.js** >= 20
-- **[Ohm](https://ohmjs.org/)** - PEG parser generator
-- **[graph-stringify](https://www.npmjs.com/package/graph-stringify)** - AST visualization
-- **Node.js test runner** with native coverage - testing & coverage without a coverage wrapper
-- **[Tailwind CSS](https://tailwindcss.com/)** - project website
-
-## Development
+## Tests
 
 ```bash
-npm install
-npm run test:only
-npm test
-node src/cloudscribe.js examples/security_scan.csc js
+npm test             # 199 tests with Node's built-in coverage report
+npm run test:only    # same tests, no coverage
+npm run check:repo   # repository convention checks
 ```
 
-`npm test` runs the full suite with coverage. `npm run test:only` is faster when you only need the Node.js test runner.
+Tests use the built-in `node:test` runner, with one file per compiler stage plus pipeline and CLI tests. The pipeline tests compile every file in `examples/` and run the output as an ES module, so generated code is checked by running it, not by matching strings. Line coverage is about 98%.
 
-## Author
+## Project layout
 
-**Patrick King** - [GitHub](https://github.com/patrickking67)
+```text
+cloudscribe/
+|-- src/                  compiler stages and CLI (see the pipeline table)
+|-- test/                 node:test suites, one per stage plus compiler and CLI
+|-- examples/             sample .csc programs, all compiled and run in tests
+|-- docs/
+|   |-- language-spec.md  language rules and compatibility contract
+|   `-- index.html        project website (GitHub Pages)
+|-- scripts/check-repo.sh repository convention checks used in CI
+`-- .github/workflows/    CI (tests on Node 20, 22, 24) and Pages deploy
+```
+
+Runtime dependencies are [ohm-js](https://www.npmjs.com/package/ohm-js) for parsing and [graph-stringify](https://www.npmjs.com/package/graph-stringify) for printing ASTs.
 
 ## License
 
-MIT - see [LICENSE](LICENSE) for details.
+MIT, see [LICENSE](LICENSE). Written by [Patrick King](https://github.com/patrickking67).

@@ -44,7 +44,7 @@ let ports = [80, 443];
 
 ## Tasks and functions
 
-Tasks group operational statements and compile to executable JavaScript blocks.
+Tasks group operational statements and compile to executable JavaScript blocks. A bare `return;` inside a task exits the task; it compiles to a `break` out of a labeled block.
 
 ```csc
 task deployService {
@@ -73,7 +73,7 @@ CloudScribe supports `if`/`else`, `while`, and `for...in`. Conditions must be bo
 | Arithmetic | `+ - * / % **` | Numeric operands, except supported string concatenation with `+` |
 | Comparison | `== != < <= > >=` | Compatible operand types |
 | Logical | `&& || !` | Boolean operands |
-| Bitwise | `& \| ^ ~ << >>` | Integer operands |
+| Bitwise | `& \| ^` | Integer operands |
 | Conditional | `condition ? a : b` | Boolean condition and compatible branch types |
 | Null coalescing | `a ?? b` | Optional left operand and compatible fallback |
 
@@ -81,7 +81,7 @@ Operator precedence is encoded in `src/cloudscribe.ohm` and covered by parser an
 
 ## Static diagnostics
 
-Compilation stops before code generation for undeclared or redeclared names, invalid assignment, incompatible operands, invalid conditions, incorrect calls, invalid returns, heterogeneous arrays, `break` outside a loop, or reassignment to `const`.
+Compilation stops before code generation for undeclared or redeclared names, unknown type names, invalid assignment (including `++` and `--` on a `const` or loop variable), incompatible operands, invalid conditions, incorrect calls, invalid returns, heterogeneous arrays, `break` outside a loop, or reassignment to `const`.
 
 Diagnostics should identify the violated rule without changing runtime behavior. New diagnostics require analyzer tests.
 

@@ -22,30 +22,33 @@ const syntaxChecks = [
   ["chained member access", "x.y.z;"],
   ["complex expression", "let x = (a + b) * (c - d) / 2;"],
   ["boolean operations", "let x = true && !false || true;"],
-  ["nested function calls", "f(g(h(x)));"]
+  ["nested function calls", "f(g(h(x)));"],
+  ["identifier with underscores", "const MAX_RETRIES = 3;"],
+  ["identifier starting with an underscore", "let _tmp = 1;"]
 ];
 
 const syntaxErrors = [
   ["empty program", "", /Expected/],
+  ["identifier starting with a digit", "let 1x = 1;", /Expected/],
   ["missing semicolon", "let x = 5", /Expected ";"/],
   ["bad number", "x = 2..3;", /Expected/],
   ["missing right operand", "x = 2 +;", /Expected/],
   ["missing left operand", "x = + 2;", /Expected/],
-  ["missing identifier", "let = 5;", /Expected a letter/],
+  ["missing identifier", "let = 5;", /Expected an identifier/],
   ["missing parameters", "function f {}", /Expected "\("/],
   ["bad parameter", "function f(x y) {}", /Expected ":"/],
   ["missing body", "if x", /Expected "{"/],
   ["malformed string", 'let x = "hello;', /Expected "\\""$/],
-  ["invalid character", "let #x = 1;", /Expected a letter/],
+  ["invalid character", "let #x = 1;", /Expected an identifier/],
   ["missing closing bracket", "let x = [1, 2, 3;", /Expected/],
-  ["invalid task syntax", "task { return; }", /Expected a letter/],
-  ["missing function name", "function() {}", /Expected a letter/],
+  ["invalid task syntax", "task { return; }", /Expected an identifier/],
+  ["missing function name", "function() {}", /Expected an identifier/],
   ["invalid array access", "x[];", /Expected/],
-  ["invalid member access", "x.;", /Expected a letter/],
+  ["invalid member access", "x.;", /Expected an identifier/],
   ["double operator", "x + + y;", /Expected/],
   ["missing operand between operators", "x + * y;", /Expected/],
   ["unclosed function call", "f(x;", /Expected/],
-  ["invalid type declaration", "function f(x: ?) {}", /Expected a letter/]
+  ["invalid type declaration", "function f(x: ?) {}", /Expected an identifier/]
 ];
 
 describe("The parser", () => {

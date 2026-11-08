@@ -12,6 +12,8 @@ import { voidType } from "./core.js"
 export default function generate(program) {
   const out = []
   const map = new Map()
+  // Innermost function or task boundary, used to lower `return` inside a task.
+  const returnTargets = []
 
   function jsName(e) {
     if (!map.has(e.name)) map.set(e.name, map.size)
@@ -24,9 +26,16 @@ export default function generate(program) {
     if (typeof e === "string") return e
     if (e.name) return jsName(e)
     switch (e.kind) {
-      case "BinaryExpression":
-        return `(${exp(e.left)} ${e.op} ${exp(e.right)})`
+      case "BinaryExpression": {
+        // JavaScript rejects a unary operator directly before `**`, so wrap it.
+        const needsParens = e.op === "**" &&
+          (e.left?.kind === "UnaryExpression" || (typeof e.left === "number" && e.left < 0))
+        const left = needsParens ? `(${exp(e.left)})` : exp(e.left)
+        return `(${left} ${e.op} ${exp(e.right)})`
+      }
       case "UnaryExpression":
+        // An optional is the plain value at runtime, so `some x` is just `x`.
+        if (e.op === "some") return exp(e.operand)
         return `${e.op}(${exp(e.operand)})`
       case "Conditional":
         return `(${exp(e.test)} ? ${exp(e.consequent)} : ${exp(e.alternate)})`
@@ -44,6 +53,11 @@ export default function generate(program) {
   }
 
   function gen(node) {
+    // The optimizer can fold an expression statement down to a literal.
+    if (typeof node !== "object" || node === null) {
+      out.push(`${exp(node)};`)
+      return
+    }
     switch (node.kind) {
       case "Program":
         node.statements.forEach(gen)
@@ -84,15 +98,23 @@ export default function generate(program) {
       case "TaskDeclaration": {
         const t = node.task
         out.push(`// task: ${t.name}`)
-        out.push(`{`)
+        const open = out.push(`{`) - 1
+        // A task compiles to a block, where `return` is illegal. Returns in the
+        // task become `break` to a label that is only added when needed.
+        const target = { task: t, label: null }
+        returnTargets.push(target)
         t.body.forEach(gen)
+        returnTargets.pop()
+        if (target.label) out[open] = `${target.label}: {`
         out.push(`}`)
         break
       }
       case "FunctionDeclaration": {
         const f = node.fun
         out.push(`function ${jsName(f)}(${f.params.map(p => jsName(p)).join(", ")}) {`)
+        returnTargets.push({ task: null })
         f.body.forEach(gen)
+        returnTargets.pop()
         out.push(`}`)
         break
       }
@@ -110,18 +132,45 @@ export default function generate(program) {
         }
         break
       }
-      case "ReturnStatement":
-        out.push(`return ${exp(node.expression)};`)
+      case "ReturnStatement": {
+        const label = taskLabel()
+        if (label) {
+          out.push(`${exp(node.expression)};`)
+          out.push(`break ${label};`)
+        } else {
+          out.push(`return ${exp(node.expression)};`)
+        }
         break
-      case "ShortReturnStatement":
-        out.push("return;")
+      }
+      case "ShortReturnStatement": {
+        const label = taskLabel()
+        out.push(label ? `break ${label};` : "return;")
         break
+      }
       case "BreakStatement":
         out.push("break;")
+        break
+      case "BinaryExpression":
+      case "UnaryExpression":
+      case "Conditional":
+      case "SubscriptExpression":
+      case "MemberExpression":
+      case "ArrayExpression":
+      case "Variable":
+      case "Parameter":
+        // A bare expression used as a statement, such as `x + 1;`.
+        out.push(`${exp(node)};`)
         break
       default:
         throw new Error(`generator: unhandled node kind ${node.kind}`)
     }
+  }
+
+  function taskLabel() {
+    const target = returnTargets.at(-1)
+    if (!target?.task) return null
+    target.label ??= jsName(target.task)
+    return target.label
   }
 
   gen(program)

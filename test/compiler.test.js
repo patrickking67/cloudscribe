@@ -1,6 +1,14 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
+import { readFileSync, readdirSync } from "node:fs"
+import { spawnSync } from "node:child_process"
 import compile from "../src/compiler.js"
+
+// Runs generated JavaScript as an ES module, which is stricter than a script
+// (for example, a top-level `return` is a SyntaxError).
+function runAsModule(js) {
+  return spawnSync(process.execPath, ["--input-type=module"], { input: js, encoding: "utf8" })
+}
 
 describe("The compiler pipeline", () => {
   it("returns syntax confirmation for parsed output", () => {
@@ -61,9 +69,51 @@ describe("The compiler pipeline", () => {
     assert.match(js, /[&|^]/)
   })
 
+  it("compiles identifiers that contain underscores", () => {
+    const js = compile("const MAX_RETRIES = 3; let retry_count = MAX_RETRIES;", "js")
+    assert.match(js, /const MAX_RETRIES_0 = 3;/)
+    assert.match(js, /let retry_count_1 = MAX_RETRIES_0;/)
+  })
+
   it("uses const for immutable variables in generated JS", () => {
     const js = compile("const MAX = 99;", "js")
     assert.match(js, /const MAX_0 = 99;/)
+  })
+
+  it("produces runnable JavaScript for edge cases the optimizer and generator rewrite", () => {
+    const source = `
+      let greeting = "hello, " + "world";
+      let label = "n=" + 1;
+      let x = 3;
+      let square = -x ** 2;
+      let n = 2;
+      let negBase = -5 ** n;
+      let maybe = some x;
+      if true { print(greeting); } else { print("unreachable"); }
+      print(label);
+      print(square);
+      print(negBase);
+      print(maybe ?? 0);
+      task early {
+        print("before");
+        if x > 1 { return; }
+        print("after");
+      }
+    `
+    const result = runAsModule(compile(source, "js"))
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "hello, world\nn=1\n9\n25\n3\nbefore\n")
+  })
+
+  it("compiles every example to JavaScript that runs as an ES module", () => {
+    const dir = new URL("../examples/", import.meta.url)
+    const files = readdirSync(dir).filter(name => name.endsWith(".csc"))
+    assert.ok(files.length > 0)
+    for (const name of files) {
+      const js = compile(readFileSync(new URL(name, dir), "utf8"), "js")
+      const result = runAsModule(js)
+      assert.equal(result.status, 0, `${name}: ${result.stderr}`)
+    }
   })
 
   it("throws on unknown output type", () => {

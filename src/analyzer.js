@@ -6,6 +6,9 @@
 
 import * as core from "./core.js"
 
+/** Type names that may appear in annotations such as `x: int`. */
+const BUILT_IN_TYPES = [core.intType, core.stringType, core.booleanType]
+
 /** Scoping context that tracks local bindings, loop/function nesting, and parent scopes. */
 class Context {
   constructor({
@@ -144,12 +147,14 @@ export default function analyze(match) {
     Statement_increment(primary, _op, _semicolon) {
       const variable = primary.rep()
       mustHaveIntType(variable, { at: primary })
+      mustBeMutable(variable, { at: primary })
       return core.increment(variable)
     },
 
     Statement_decrement(primary, _op, _semicolon) {
       const variable = primary.rep()
       mustHaveIntType(variable, { at: primary })
+      mustBeMutable(variable, { at: primary })
       return core.decrement(variable)
     },
 
@@ -255,7 +260,9 @@ export default function analyze(match) {
     },
 
     Type_id(id) {
-      return id.sourceString
+      const name = id.sourceString
+      must(BUILT_IN_TYPES.includes(name), `Unknown type ${name}`, { at: id })
+      return name
     },
 
     IfStmt_long(_if, exp, block1, _else, block2) {
@@ -287,6 +294,7 @@ export default function analyze(match) {
     LoopStmt_collection(_for, id, _in, exp, block) {
       const collection = exp.rep()
       mustBeAnArray(collection, { at: exp })
+      mustNotAlreadyBeDeclared(id.sourceString, { at: id })
       
       context = context.newChildContext({ inLoop: true })
       const iterator = core.variable(id.sourceString, false, collection.type.baseType)
@@ -395,7 +403,7 @@ export default function analyze(match) {
           return core.binary(operator, left, right, core.intType)
         } else {
           must(false, 
-            `Expected compatible types for '+' operation, got ${left.type} and ${right.type}`, 
+            `Expected compatible types for '+' operation, got ${typeDescription(left.type)} and ${typeDescription(right.type)}`,
             { at: exp2 }
           )
         }

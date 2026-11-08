@@ -207,7 +207,15 @@ const semanticErrors = [
   ["wrong function argument type", `function f(x: int): int { return x; } f("one");`, /Expected argument 1 of type int, got string/],
   ["wrong function return type", `function f(): int { return "one"; }`, /Expected return value of type int, got string/],
   ["empty return from non-void function", `function f(): int { return; }`, /Expected return value of type int, got void/],
-  ["unary operation on wrong type", "let x = -(true);", /Expected an integer/]
+  ["unary operation on wrong type", "let x = -(true);", /Expected an integer/],
+  ["increment of a constant", "const x = 1; x++;", /Cannot assign to immutable variable/],
+  ["decrement of a constant", "const x = 1; x--;", /Cannot assign to immutable variable/],
+  ["increment of a loop variable", "for i in [1, 2] { i++; }", /Cannot assign to immutable variable/],
+  ["unknown parameter type", "function f(x: foo) { print(x); }", /Unknown type foo/],
+  ["unknown return type", "function f(): text { return \"a\"; }", /Unknown type text/],
+  ["unknown array element type", "function f(x: [num]) { print(x); }", /Unknown type num/],
+  ["loop variable that shadows a declaration", "let x = 1; for x in [1, 2] { print(x); }", /Identifier x already declared/],
+  ["'+' on an array, with a readable type in the message", "let a = [1]; let b = a + true;", /got \[int\] and boolean/]
 ]
 
 describe("The analyzer", () => {

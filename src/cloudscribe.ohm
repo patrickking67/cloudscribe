@@ -97,7 +97,7 @@ CloudScribe {
   true        = "true" ~alnum
   false       = "false" ~alnum
   keyword     = let | const | function | task | if | else | while | for | in | break | return | install | update | scan | restart | some | no | true | false
-  id          = ~keyword letter alnum*
+  id          (an identifier) = ~keyword (letter | "_") (alnum | "_")*
 
   space      += "//" (~"\n" any)*  --comment
 }

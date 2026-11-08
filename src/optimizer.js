@@ -47,9 +47,12 @@ function visit(node) {
 }
 
 function visitBlock(stmts) {
+  // A folded if statement returns its surviving branch as an array of
+  // statements, so flatten one level instead of nesting it.
   return stmts.flatMap(s => {
     const r = visit(s)
-    return r == null ? [] : [r]
+    if (r == null) return []
+    return Array.isArray(r) ? r : [r]
   })
 }
 
@@ -58,7 +61,11 @@ function foldBinary(node) {
   const right = visit(node.right);
   const op = node.op;
 
-  if (isLiteral(left) && isLiteral(right) && BIN_OP[op]) {
+  // String literals are kept as quoted source text, so folding them would
+  // splice quotes together and emit invalid JavaScript. Only fold
+  // numbers and booleans.
+  const foldable = x => isLiteral(x) && typeof x !== "string";
+  if (foldable(left) && foldable(right) && BIN_OP[op]) {
     return BIN_OP[op](left, right);
   }
 
