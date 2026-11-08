@@ -160,6 +160,7 @@ export default function analyze(match) {
 
     Statement_assign(primary, _eq, exp, _semicolon) {
       const target = primary.rep()
+      must(target?.kind !== "Task", `Cannot assign to task ${target.name}`, { at: primary })
       mustBeMutable(target, { at: primary })
       const source = exp.rep()
       mustHaveType(source.type, target.type, { at: exp }, "assignment")

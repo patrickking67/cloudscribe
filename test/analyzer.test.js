@@ -215,7 +215,8 @@ const semanticErrors = [
   ["unknown return type", "function f(): text { return \"a\"; }", /Unknown type text/],
   ["unknown array element type", "function f(x: [num]) { print(x); }", /Unknown type num/],
   ["loop variable that shadows a declaration", "let x = 1; for x in [1, 2] { print(x); }", /Identifier x already declared/],
-  ["'+' on an array, with a readable type in the message", "let a = [1]; let b = a + true;", /got \[int\] and boolean/]
+  ["'+' on an array, with a readable type in the message", "let a = [1]; let b = a + true;", /got \[int\] and boolean/],
+  ["assignment to a task", "task t { print(1); } t = 5;", /Cannot assign to task t/]
 ]
 
 describe("The analyzer", () => {
