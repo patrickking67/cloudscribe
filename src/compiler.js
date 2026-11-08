@@ -1,5 +1,5 @@
 /**
- * Compiler pipeline orchestrator — chains parse, analyze, optimize, and generate stages.
+ * Compiler pipeline orchestrator: chains parse, analyze, optimize, and generate stages.
  * @module compiler
  */
 import parse from "./parser.js"

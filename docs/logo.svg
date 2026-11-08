@@ -18,7 +18,7 @@
   <!-- Rounded square background -->
   <rect width="512" height="512" rx="108" fill="url(#bg)"/>
 
-  <!-- Cloud shape — centered on 512x512 canvas -->
+  <!-- Cloud shape, centered on 512x512 canvas -->
   <g transform="translate(256,256)">
     <path d="
       M -140 30

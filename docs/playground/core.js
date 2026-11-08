@@ -24,7 +24,7 @@ export function taskDeclaration(task) {
   return { kind: "TaskDeclaration", task }
 }
 
-/** Creates a task entity — the primary automation abstraction. */
+/** Creates a task entity, the primary automation abstraction. */
 export function task(name, body) {
   return { kind: "Task", name, body }
 }

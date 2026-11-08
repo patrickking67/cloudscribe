@@ -1,5 +1,5 @@
 /**
- * Optimizer — performs constant folding, dead code elimination, and branch simplification
+ * Optimizer: performs constant folding, dead code elimination, and branch simplification
  * on the analyzed AST to produce an optimized intermediate representation.
  * @module optimizer
  */

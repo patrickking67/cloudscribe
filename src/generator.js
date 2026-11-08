@@ -1,5 +1,5 @@
 /**
- * Code generator — transpiles the optimized CloudScribe IR into JavaScript.
+ * Code generator: transpiles the optimized CloudScribe IR into JavaScript.
  * @module generator
  */
 import { voidType } from "./core.js"

@@ -4,7 +4,7 @@ import generate from "../src/generator.js"
 import { voidType } from "../src/core.js"
 
 describe("The generator", () => {
-  // — Expression coverage —
+  // Expression coverage
 
   it("exp: null/undefined produces empty string", () => {
     const prog = {
@@ -140,7 +140,7 @@ describe("The generator", () => {
     assert.throws(() => generate(prog), /generator exp: unhandled expression kind FooBar/)
   })
 
-  // — Statement coverage —
+  // Statement coverage
 
   it("VariableDeclaration uses const for immutable variables", () => {
     const prog = {
