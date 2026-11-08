@@ -17,7 +17,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "test": "node --test --experimental-test-coverage --test-coverage-include=src/** test/*.test.js",
+    "test": "node scripts/test.mjs",
     "test:only": "node --test test/*.test.js",
     "check:repo": "bash scripts/check-repo.sh",
     "build:playground": "node scripts/build-playground.mjs",
