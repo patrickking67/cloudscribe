@@ -140,6 +140,15 @@ export function arrayExpression(elements) {
   }
 }
 
+/**
+ * Creates an interpolated string such as "host ${name} returned ${code}".
+ * `strings` holds the text around the expressions as CloudScribe source text
+ * (escapes kept, no quotes), so it always has one more entry than `expressions`.
+ */
+export function interpolatedString(strings, expressions) {
+  return { kind: "InterpolatedString", strings, expressions, type: stringType }
+}
+
 /** Creates a function call expression with a callee and arguments. */
 export function functionCall(callee, args) {
   return { 

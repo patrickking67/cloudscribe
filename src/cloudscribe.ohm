@@ -62,16 +62,22 @@ CloudScribe {
               | Primary ("(" ListOf<Exp, ","> ")") ~mut  --call
               | Primary ("[" Exp "]")          --subscript
               | Primary ("." id)               --member
+              | Template ~mut
               | stringlit ~mut
               | id                            --id
               | "[" ListOf<Exp, ","> "]" ~mut --arrayexp
               | "(" Exp ")" ~mut              --parens
 
+  Template    = templatehead TemplateSpan+ "\""
+  TemplateSpan = "${" Exp templatetail
+
   intlit      = digit+
   floatlit    = digit+ "." digit+ (("E" | "e") ("+" | "-")? digit+)?
   stringlit   = "\"" char* "\""
-  char        = ~control ~"\\" ~"\"" any
-              | "\\" ("n" | "t" | "\"" | "\\") --escape
+  templatehead = "\"" char*
+  templatetail = "}" char*
+  char        = ~control ~"\\" ~"\"" ~"${" any
+              | "\\" ("n" | "t" | "\"" | "\\" | "$") --escape
               | "\\u{" hex hex? hex? hex? hex? hex? "}" --codepoint
   control     = "\x00".."\x1f" | "\x80".."\x9f"
   hex         = hexDigit

@@ -4,7 +4,22 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-Planned as 1.1.0. `package.json` is already at 1.1.0.
+Planned as 1.2.0. `package.json` is at 1.2.0.
+
+### Added
+
+- String interpolation: `"host ${name} returned ${code}"`. Each embedded expression is type-checked and must be an `int`, `string` or `boolean`; an optional gets a hint to add a `??` fallback. It compiles to a JavaScript template literal, and the optimizer moves literal parts into the text.
+- The `\$` escape in string literals, so `"\${HOME}"` is the literal text `${HOME}`.
+- `examples/disk_report.csc` and a playground example that use interpolation.
+
+### Changed
+
+- `${` inside a string literal now starts an interpolation. A string that meant a literal `${` must write `\${`, and an unclosed `${` is a syntax error.
+- Generated JavaScript is indented two spaces per block level instead of starting every line in column one.
+
+## [1.1.0] - untagged
+
+Merged to `main` on 2026-11-07. It was never tagged or published.
 
 ### Added
 
@@ -44,5 +59,6 @@ Summary of the history before this changelog existed. There were no tags.
 
 - 2026-11-07: valid JavaScript for `return` inside tasks, string concatenation of literals and unary operators before `**`, plus stricter checks for unknown types, const and loop variable mutation, and `return` outside a function or task.
 
-[Unreleased]: https://github.com/patrickking67/cloudscribe/compare/5685d18...HEAD
+[Unreleased]: https://github.com/patrickking67/cloudscribe/compare/c4690b6...HEAD
+[1.1.0]: https://github.com/patrickking67/cloudscribe/compare/5685d18...c4690b6
 [1.0.0]: https://github.com/patrickking67/cloudscribe/tree/5685d18

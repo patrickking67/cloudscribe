@@ -141,6 +141,102 @@ describe("The compiler pipeline", () => {
     assert.equal(result.stdout, "3\n10\n")
   })
 
+  it("runs interpolated strings with escapes, nesting and folded parts", () => {
+    const source = [
+      'let host = "web-01";',
+      "let code = 503;",
+      "let ports = [80, 443];",
+      'print("host ${host} returned ${code}");',
+      'print("healthy: ${code == 200}, next ${code + 1}, ${ports.length} ports, ${2 * 3} fixed");',
+      'print("${code >= 500 ? "server error" : "ok"} from ${"node ${host}"}");',
+      'print("literal \\${host}, $5, ${"$"}{x}, a `tick` and \\"quotes\\" \\\\ \\u{41}");',
+      'print("home: ${env("CLOUDSCRIBE_UNSET_FOR_TEST") ?? "unset"}");'
+    ].join("\n")
+    const js = compile(source, "js")
+    assert.match(js, /console\.log\(`host \$\{host_0\} returned \$\{code_1\}`\);/)
+    const result = runAsModule(js)
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, [
+      "host web-01 returned 503",
+      "healthy: false, next 504, 2 ports, 6 fixed",
+      "server error from node web-01",
+      'literal ${host}, $5, ${x}, a `tick` and "quotes" \\ A',
+      "home: unset",
+      ""
+    ].join("\n"))
+  })
+
+  it("indents generated JavaScript two spaces per block level", () => {
+    const source = `
+      function retries(code: int): int {
+        if code >= 500 {
+          return 3;
+        } else {
+          return 0;
+        }
+      }
+      task restartAll {
+        let services = ["web", "db"];
+        let n = 0;
+        for service in services {
+          while n < retries(503) {
+            n++;
+            if n == 2 { break; }
+          }
+          if service == "db" { return; }
+          print(service);
+        }
+      }
+      let verbose = false;
+      if verbose {
+        task details {
+          if verbose { return; }
+          print("details");
+        }
+      }
+    `
+    const js = compile(source, "js")
+    assert.equal(js, [
+      "function retries_0(code_1) {",
+      "  if ((code_1 >= 500)) {",
+      "    return 3;",
+      "  } else {",
+      "    return 0;",
+      "  }",
+      "}",
+      "// task: restartAll",
+      "restartAll_5: {",
+      '  let services_2 = ["web", "db"];',
+      "  let n_3 = 0;",
+      "  for (const service_4 of services_2) {",
+      "    while ((n_3 < retries_0(503))) {",
+      "      n_3++;",
+      "      if ((n_3 == 2)) {",
+      "        break;",
+      "      }",
+      "    }",
+      '    if ((service_4 == "db")) {',
+      "      break restartAll_5;",
+      "    }",
+      "    console.log(service_4);",
+      "  }",
+      "}",
+      "let verbose_6 = false;",
+      "if (verbose_6) {",
+      "  // task: details",
+      "  details_7: {",
+      "    if (verbose_6) {",
+      "      break details_7;",
+      "    }",
+      '    console.log("details");',
+      "  }",
+      "}"
+    ].join("\n"))
+    const result = runAsModule(js)
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, "web\n")
+  })
+
   it("compiles every example to JavaScript that runs as an ES module", () => {
     const dir = new URL("../examples/", import.meta.url)
     const files = readdirSync(dir).filter(name => name.endsWith(".csc"))

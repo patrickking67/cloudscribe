@@ -24,9 +24,29 @@ const RUNTIME = {
   exit: { code: "const __cs_exit = (code) => process.exit(code);" }
 }
 
+// One level of indentation in the generated JavaScript.
+const INDENT = "  "
+
 const IMPORTS = {
   fs: 'import * as __cs_fs from "node:fs";',
   childProcess: 'import * as __cs_childProcess from "node:child_process";'
+}
+
+/**
+ * Turns the text of an interpolated string, in CloudScribe escape syntax, into
+ * the text of a JavaScript template literal. The escapes CloudScribe allows
+ * mean the same in both, so only a backtick and a `$` before `{` need one.
+ */
+function templateText(text) {
+  let js = ""
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    if (c === "\\") js += c + text[++i]
+    else if (c === "`") js += "\\`"
+    else if (c === "$" && text[i + 1] === "{") js += "\\$"
+    else js += c
+  }
+  return js
 }
 
 /**
@@ -79,6 +99,10 @@ export default function generate(program) {
         return `${exp(e.object)}.${e.field}`
       case "ArrayExpression":
         return `[${e.elements.map(exp).join(", ")}]`
+      case "InterpolatedString": {
+        const parts = e.expressions.map((x, i) => `\${${exp(x)}}${templateText(e.strings[i + 1])}`)
+        return `\`${templateText(e.strings[0])}${parts.join("")}\``
+      }
       case "FunctionCall":
         return `${exp(e.callee)}(${e.args.map(exp).join(", ")})`
       default:
@@ -86,10 +110,25 @@ export default function generate(program) {
     }
   }
 
+  // Statements are emitted one per line, indented by block depth. No
+  // expression spans lines (strings keep \n as an escape), so indenting
+  // whole lines never changes a string's value.
+  let depth = 0
+
+  function emit(line) {
+    return out.push(`${INDENT.repeat(depth)}${line}`) - 1
+  }
+
+  function body(statements) {
+    depth++
+    statements.forEach(gen)
+    depth--
+  }
+
   function gen(node) {
     // The optimizer can fold an expression statement down to a literal.
     if (typeof node !== "object" || node === null) {
-      out.push(`${exp(node)};`)
+      emit(`${exp(node)};`)
       return
     }
     switch (node.kind) {
@@ -98,96 +137,96 @@ export default function generate(program) {
         break
       case "VariableDeclaration": {
         const keyword = node.variable.mutable === false ? "const" : "let"
-        out.push(`${keyword} ${jsName(node.variable)} = ${exp(node.initializer)};`)
+        emit(`${keyword} ${jsName(node.variable)} = ${exp(node.initializer)};`)
         break
       }
       case "Assignment":
-        out.push(`${exp(node.target)} = ${exp(node.source)};`)
+        emit(`${exp(node.target)} = ${exp(node.source)};`)
         break
       case "PrintStatement":
-        out.push(`console.log(${exp(node.argument)});`)
+        emit(`console.log(${exp(node.argument)});`)
         break
       case "IfStatement":
-        out.push(`if (${exp(node.test)}) {`)
-        node.consequent.forEach(gen)
-        out.push(`} else {`)
-        node.alternate.forEach(gen)
-        out.push(`}`)
+        emit(`if (${exp(node.test)}) {`)
+        body(node.consequent)
+        emit(`} else {`)
+        body(node.alternate)
+        emit(`}`)
         break
       case "ShortIfStatement":
-        out.push(`if (${exp(node.test)}) {`)
-        node.consequent.forEach(gen)
-        out.push(`}`)
+        emit(`if (${exp(node.test)}) {`)
+        body(node.consequent)
+        emit(`}`)
         break
       case "Block":
-        out.push(`{`)
-        node.statements.forEach(gen)
-        out.push(`}`)
+        emit(`{`)
+        body(node.statements)
+        emit(`}`)
         break
       case "WhileStatement":
-        out.push(`while (${exp(node.test)}) {`)
-        node.body.forEach(gen)
-        out.push(`}`)
+        emit(`while (${exp(node.test)}) {`)
+        body(node.body)
+        emit(`}`)
         break
       case "ForStatement":
-        out.push(`for (const ${jsName(node.iterator)} of ${exp(node.collection)}) {`)
-        node.body.forEach(gen)
-        out.push(`}`)
+        emit(`for (const ${jsName(node.iterator)} of ${exp(node.collection)}) {`)
+        body(node.body)
+        emit(`}`)
         break
       case "TaskDeclaration": {
         const t = node.task
-        out.push(`// task: ${t.name}`)
-        const open = out.push(`{`) - 1
+        emit(`// task: ${t.name}`)
+        const open = emit(`{`)
         // A task compiles to a block, where `return` is illegal. Returns in the
         // task become `break` to a label that is only added when needed.
         const target = { task: t, label: null }
         returnTargets.push(target)
-        t.body.forEach(gen)
+        body(t.body)
         returnTargets.pop()
-        if (target.label) out[open] = `${target.label}: {`
-        out.push(`}`)
+        if (target.label) out[open] = `${INDENT.repeat(depth)}${target.label}: {`
+        emit(`}`)
         break
       }
       case "FunctionDeclaration": {
         const f = node.fun
-        out.push(`function ${jsName(f)}(${f.params.map(p => jsName(p)).join(", ")}) {`)
+        emit(`function ${jsName(f)}(${f.params.map(p => jsName(p)).join(", ")}) {`)
         returnTargets.push({ task: null })
-        f.body.forEach(gen)
+        body(f.body)
         returnTargets.pop()
-        out.push(`}`)
+        emit(`}`)
         break
       }
       case "Increment":
-        out.push(`${exp(node.variable)}++;`)
+        emit(`${exp(node.variable)}++;`)
         break
       case "Decrement":
-        out.push(`${exp(node.variable)}--;`)
+        emit(`${exp(node.variable)}--;`)
         break
       case "FunctionCall": {
         if (node.callee.intrinsic && node.callee.name === "print") {
-          out.push(`console.log(${node.args.map(exp).join(", ")});`)
+          emit(`console.log(${node.args.map(exp).join(", ")});`)
         } else {
-          out.push(`${exp(node.callee)}(${node.args.map(exp).join(", ")});`)
+          emit(`${exp(node.callee)}(${node.args.map(exp).join(", ")});`)
         }
         break
       }
       case "ReturnStatement": {
         const label = taskLabel()
         if (label) {
-          out.push(`${exp(node.expression)};`)
-          out.push(`break ${label};`)
+          emit(`${exp(node.expression)};`)
+          emit(`break ${label};`)
         } else {
-          out.push(`return ${exp(node.expression)};`)
+          emit(`return ${exp(node.expression)};`)
         }
         break
       }
       case "ShortReturnStatement": {
         const label = taskLabel()
-        out.push(label ? `break ${label};` : "return;")
+        emit(label ? `break ${label};` : "return;")
         break
       }
       case "BreakStatement":
-        out.push("break;")
+        emit("break;")
         break
       case "BinaryExpression":
       case "UnaryExpression":
@@ -195,10 +234,11 @@ export default function generate(program) {
       case "SubscriptExpression":
       case "MemberExpression":
       case "ArrayExpression":
+      case "InterpolatedString":
       case "Variable":
       case "Parameter":
         // A bare expression used as a statement, such as `x + 1;`.
-        out.push(`${exp(node)};`)
+        emit(`${exp(node)};`)
         break
       default:
         throw new Error(`generator: unhandled node kind ${node.kind}`)

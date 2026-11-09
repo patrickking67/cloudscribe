@@ -16,7 +16,7 @@ Parsing produces a concrete match, analysis resolves names and types into a type
 - Line comments begin with `//`.
 - Statements end with semicolons.
 - Blocks use braces.
-- String literals use double quotes.
+- String literals use double quotes. The escapes are `\n`, `\t`, `\"`, `\\`, `\$` and `\u{X}` with one to six hex digits.
 - Integer literals are base-10 whole numbers.
 
 ## Types
@@ -33,6 +33,22 @@ Parsing produces a concrete match, analysis resolves names and types into a type
 Array elements must share a compatible type. An optional value is made with `some x` or returned by a built-in such as `env`, and is either a value of its base type or empty. `a ?? b` gives the value of `a`, or `b` when `a` is empty. Function types encode parameter and return types.
 
 Strings and arrays have a `length` member of type `int`.
+
+## String interpolation
+
+A string literal can embed expressions between `${` and `}`:
+
+```csc
+let host = "web-01";
+let code = 503;
+print("host ${host} returned ${code}, retry ${code >= 500}");
+```
+
+- Each embedded expression is analyzed in the surrounding scope and must have type `int`, `string` or `boolean`. An array, a function, a task, a `void` call or an optional is a compile error; give an optional a fallback with `??`, as in `"${env("HOME") ?? "unset"}"`.
+- Spaces inside the braces are ignored. Text outside the braces, including spaces, is kept as written.
+- Embedded expressions can contain string literals and further interpolated strings.
+- `\${` writes a literal `${`. A `$` not followed by `{` needs no escape. An unclosed `${` is a syntax error.
+- An interpolated string has type `string`. Values are converted with JavaScript string conversion, so `true` becomes `true` and `3.5` becomes `3.5`.
 
 Numbers follow JavaScript at runtime: `/` on two `int` values can produce a fraction, for example `7 / 2` is `3.5`.
 
@@ -100,17 +116,17 @@ Operator precedence is encoded in `src/cloudscribe.ohm` and covered by parser an
 
 ## Static diagnostics
 
-Compilation stops before code generation for undeclared or redeclared names, unknown type names, invalid assignment (including `++` and `--` on a `const` or loop variable, and assignment to a task), incompatible operands, invalid conditions, incorrect calls, invalid returns, heterogeneous arrays, `break` outside a loop, or reassignment to `const`.
+Compilation stops before code generation for undeclared or redeclared names, unknown type names, invalid assignment (including `++` and `--` on a `const` or loop variable, and assignment to a task), incompatible operands, invalid conditions, incorrect calls, invalid returns, heterogeneous arrays, interpolated values that are not `int`, `string` or `boolean`, `break` outside a loop, or reassignment to `const`.
 
 Diagnostics should identify the violated rule without changing runtime behavior. New diagnostics require analyzer tests.
 
 ## Optimization contract
 
-The optimizer may fold constants and remove unreachable or redundant work only when the generated program remains observably equivalent. When it folds an `if` with a constant condition, the surviving branch keeps its own block scope if it declares names. Optimizer changes require paired input and expected-AST tests.
+The optimizer may fold constants and remove unreachable or redundant work only when the generated program remains observably equivalent. Literal parts of an interpolated string move into its text, and a string with only literal parts becomes a plain string literal. When it folds an `if` with a constant condition, the surviving branch keeps its own block scope if it declares names. Optimizer changes require paired input and expected-AST tests.
 
 ## JavaScript generation contract
 
-Generated JavaScript is intended to be readable and executable on supported Node.js releases. The generator preserves declaration mutability, control flow, function boundaries, and evaluation order.
+Generated JavaScript is intended to be readable and executable on supported Node.js releases. The generator preserves declaration mutability, control flow, function boundaries, and evaluation order. It emits one statement per line, indented two spaces per block level. An interpolated string compiles to a JavaScript template literal.
 
 ## Command line
 
@@ -124,4 +140,4 @@ The default output is `js`. `--check` type-checks without generating code. `--ru
 
 ## Compatibility
 
-CloudScribe follows semantic versioning. Additive syntax and diagnostics may ship in minor releases. Syntax removal, type-rule changes that reject previously valid programs, and output contract breaks require a major release.
+CloudScribe follows semantic versioning. Additive syntax and diagnostics may ship in minor releases. Since 1.2.0, `${` inside a string literal starts an interpolation, so an older program that meant a literal `${` must write `\${`. Syntax removal, type-rule changes that reject previously valid programs, and output contract breaks require a major release.
