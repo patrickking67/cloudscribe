@@ -128,6 +128,47 @@ describe("The generator", () => {
     assert.match(generate(prog), /fn_\d+\(1, 2\)/)
   })
 
+  it("exp: InterpolatedString becomes a template literal", () => {
+    const prog = {
+      kind: "Program",
+      statements: [{
+        kind: "VariableDeclaration",
+        variable: { name: "s" },
+        initializer: {
+          kind: "InterpolatedString",
+          strings: ["host ", " returned ", "\\n"],
+          expressions: [{ name: "h" }, { kind: "BinaryExpression", op: "+", left: { name: "c" }, right: 1 }]
+        }
+      }]
+    }
+    assert.equal(generate(prog), "let s_0 = `host ${h_1} returned ${(c_2 + 1)}\\n`;")
+  })
+
+  it("exp: InterpolatedString escapes backticks and a $ before {, and keeps escapes", () => {
+    // The text is CloudScribe source: \${ is an escaped dollar sign, and a raw
+    // ${ can only come from the optimizer moving a literal into the text.
+    const text = '`a` ${b} \\${c} \\\\` \\"q\\" $5 '
+    const prog = {
+      kind: "Program",
+      statements: [{
+        kind: "VariableDeclaration",
+        variable: { name: "s" },
+        initializer: { kind: "InterpolatedString", strings: [text, "$"], expressions: [{ name: "x" }] }
+      }]
+    }
+    const js = generate(prog)
+    assert.equal(js, "let s_0 = `\\`a\\` \\${b} \\${c} \\\\\\` \\\"q\\\" $5 ${x_1}$`;")
+    assert.equal(new Function("x_1", `${js} return s_0`)("X"), '`a` ${b} ${c} \\` "q" $5 X$')
+  })
+
+  it("emits a bare interpolated string as a statement", () => {
+    const prog = {
+      kind: "Program",
+      statements: [{ kind: "InterpolatedString", strings: ["", ""], expressions: [{ name: "x" }] }]
+    }
+    assert.equal(generate(prog), "`${x_0}`;")
+  })
+
   it("exp: unknown kind throws", () => {
     const prog = {
       kind: "Program",

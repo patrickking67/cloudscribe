@@ -2,7 +2,7 @@ import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import parse from "../src/parser.js"
 import analyze from "../src/analyzer.js"
-import { program, variableDeclaration, variable, binary, intType, booleanType, stringType } from "../src/core.js"
+import { program, variableDeclaration, variable, binary, interpolatedString, intType, booleanType, stringType } from "../src/core.js"
 
 const semanticChecks = [
   ["variable declarations", 'let x = 1; let y = "hello";'],
@@ -176,7 +176,19 @@ const semanticChecks = [
   ["array expressions with multiple elements", `
     let numbers = [1, 2, 3, 4, 5];
     let first = numbers[0];
-  `]
+  `],
+  ["interpolation of int, string and boolean values", `
+    let host = "web-01";
+    let code = 503;
+    print("host \${host} returned \${code}, healthy: \${code == 200}");
+  `],
+  ["interpolation of expressions, members and calls", `
+    function label(n: int): string { return "#" + n; }
+    let ports = [80, 443];
+    print("\${ports.length} ports, first \${label(ports[0])}, next \${ports[1] + 1}");
+  `],
+  ["interpolation of an optional with a fallback", `print("home: \${env("HOME") ?? "unset"}");`],
+  ["nested interpolation", `let a = 1; print("outer \${"inner \${a}"}");`]
 ]
 
 // Programs that have semantic errors
@@ -216,7 +228,14 @@ const semanticErrors = [
   ["unknown array element type", "function f(x: [num]) { print(x); }", /Unknown type num/],
   ["loop variable that shadows a declaration", "let x = 1; for x in [1, 2] { print(x); }", /Identifier x already declared/],
   ["'+' on an array, with a readable type in the message", "let a = [1]; let b = a + true;", /got \[int\] and boolean/],
-  ["assignment to a task", "task t { print(1); } t = 5;", /Cannot assign to task t/]
+  ["assignment to a task", "task t { print(1); } t = 5;", /Cannot assign to task t/],
+  ["interpolation of an undeclared name", 'print("v ${missing}");', /Identifier missing not declared/],
+  ["interpolation of an array", 'let p = [1, 2]; print("${p}");', /Expected an int, string or boolean in interpolation, got \[int\]/],
+  ["interpolation of an optional", 'print("${env("HOME")}");', /got string\?; use \?\? to give a fallback/],
+  ["interpolation of a void call", 'print("${print(1)}");', /in interpolation, got void/],
+  ["interpolation of a task", 'task t { print(1); } print("${t}");', /in interpolation, got task t/],
+  ["interpolation of a function", 'function f(): int { return 1; } print("${f}");', /in interpolation, got \(\) -> int/],
+  ["a type error inside an interpolation", 'print("${1 + true}");', /Expected compatible types for '\+' operation, got int and boolean/]
 ]
 
 describe("The analyzer", () => {
@@ -265,6 +284,34 @@ describe("The analyzer", () => {
           '"hello"'
         )
       ])
+    )
+  })
+
+  it("produces the expected representation for an interpolated string", () => {
+    const code = variable("code", true, intType)
+    assert.deepEqual(
+      analyze(parse('let code = 200; let s = "got ${code}!\\n";')),
+      program([
+        variableDeclaration(code, 200),
+        variableDeclaration(
+          variable("s", true, stringType),
+          interpolatedString(["got ", "!\\n"], [code])
+        )
+      ])
+    )
+  })
+
+  it("points at the interpolated expression that has the wrong type", () => {
+    const source = 'let ports = [80, 443];\nprint("open: ${ports}");'
+    assert.throws(
+      () => analyze(parse(source)),
+      new RegExp([
+        "Line 2, col 16:",
+        "  1 \\| let ports = \\[80, 443\\];",
+        '> 2 \\| print\\("open: \\$\\{ports\\}"\\);',
+        " {21}\\^~~~~",
+        "Expected an int, string or boolean in interpolation, got \\[int\\]$"
+      ].join("\\n"))
     )
   })
 

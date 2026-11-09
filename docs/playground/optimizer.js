@@ -181,6 +181,26 @@ const visitors = {
     return { ...core.memberExpression(object, me.field), type: me.type };
   },
 
+  InterpolatedString(s) {
+    // Literal parts move into the surrounding text. A string literal is kept
+    // as quoted source text, so its content is already in the same escaped
+    // form as the text around it.
+    const strings = [s.strings[0]];
+    const expressions = [];
+    s.expressions.map(visit).forEach((e, i) => {
+      const next = s.strings[i + 1];
+      if (isLiteral(e)) {
+        const text = typeof e === "string" ? e.slice(1, -1) : String(e);
+        strings[strings.length - 1] += text + next;
+      } else {
+        expressions.push(e);
+        strings.push(next);
+      }
+    });
+    if (expressions.length === 0) return `"${strings[0]}"`;
+    return core.interpolatedString(strings, expressions);
+  },
+
   ArrayExpression(ae) {
     const elems = ae.elements.map(visit);
     return core.arrayExpression(elems);

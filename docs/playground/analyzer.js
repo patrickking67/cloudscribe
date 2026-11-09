@@ -141,6 +141,14 @@ export default function analyze(match) {
     })
   }
 
+  function mustBeInterpolatable(e, at) {
+    const allowed = [core.intType, core.stringType, core.booleanType, core.anyType]
+    if (allowed.includes(e.type)) return
+    const got = e.kind === "Task" ? `task ${e.name}` : typeDescription(e.type)
+    const hint = e.type?.kind === "OptionalType" ? "; use ?? to give a fallback" : ""
+    must(false, `Expected an int, string or boolean in interpolation, got ${got}${hint}`, at)
+  }
+
   const builder = match.matcher.grammar.createSemantics().addOperation("rep", {
     Program(statements) {
       return core.program(statements.children.map(s => s.rep()))
@@ -506,6 +514,31 @@ export default function analyze(match) {
 
     Primary_parens(_open, exp, _close) {
       return exp.rep()
+    },
+
+    Template(head, spans, _close) {
+      const strings = [head.rep()]
+      const expressions = []
+      for (const span of spans.children) {
+        const [expression, text] = span.rep()
+        expressions.push(expression)
+        strings.push(text)
+      }
+      return core.interpolatedString(strings, expressions)
+    },
+
+    TemplateSpan(_open, exp, tail) {
+      const expression = exp.rep()
+      mustBeInterpolatable(expression, { at: exp })
+      return [expression, tail.rep()]
+    },
+
+    templatehead(_quote, chars) {
+      return chars.sourceString
+    },
+
+    templatetail(_brace, chars) {
+      return chars.sourceString
     },
 
     intlit(_) {

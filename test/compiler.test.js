@@ -141,6 +141,31 @@ describe("The compiler pipeline", () => {
     assert.equal(result.stdout, "3\n10\n")
   })
 
+  it("runs interpolated strings with escapes, nesting and folded parts", () => {
+    const source = [
+      'let host = "web-01";',
+      "let code = 503;",
+      "let ports = [80, 443];",
+      'print("host ${host} returned ${code}");',
+      'print("healthy: ${code == 200}, next ${code + 1}, ${ports.length} ports, ${2 * 3} fixed");',
+      'print("${code >= 500 ? "server error" : "ok"} from ${"node ${host}"}");',
+      'print("literal \\${host}, $5, ${"$"}{x}, a `tick` and \\"quotes\\" \\\\ \\u{41}");',
+      'print("home: ${env("CLOUDSCRIBE_UNSET_FOR_TEST") ?? "unset"}");'
+    ].join("\n")
+    const js = compile(source, "js")
+    assert.match(js, /console\.log\(`host \$\{host_0\} returned \$\{code_1\}`\);/)
+    const result = runAsModule(js)
+    assert.equal(result.stderr, "")
+    assert.equal(result.stdout, [
+      "host web-01 returned 503",
+      "healthy: false, next 504, 2 ports, 6 fixed",
+      "server error from node web-01",
+      'literal ${host}, $5, ${x}, a `tick` and "quotes" \\ A',
+      "home: unset",
+      ""
+    ].join("\n"))
+  })
+
   it("compiles every example to JavaScript that runs as an ES module", () => {
     const dir = new URL("../examples/", import.meta.url)
     const files = readdirSync(dir).filter(name => name.endsWith(".csc"))

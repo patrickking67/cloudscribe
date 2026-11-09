@@ -100,6 +100,25 @@ describe("The optimizer", () => {
     assert.equal(ir.statements[1].kind, "VariableDeclaration");
   });
 
+  it("moves literal parts of an interpolated string into its text", () => {
+    const ir = opt('let n = 3; let s = "a ${1 + 2} b ${n} c ${true} d ${"e"} f";');
+    const s = ir.statements[1].initializer;
+    assert.equal(s.kind, "InterpolatedString");
+    assert.deepEqual(s.strings, ["a 3 b ", " c true d e f"]);
+    assert.deepEqual(s.expressions, [ir.statements[0].variable]);
+  });
+
+  it("folds an interpolated string with only literal parts to a string literal", () => {
+    assert.equal(val('let s = "x=${2 * 3}, ${"in ${!false}"}\\n";'), '"x=6, in true\\n"');
+  });
+
+  it("keeps the whole text when nothing in an interpolated string folds", () => {
+    const ir = opt('let a = "x"; let b = "y"; let s = "${a}-${b}";');
+    const s = ir.statements[2].initializer;
+    assert.deepEqual(s.strings, ["", "-", ""]);
+    assert.equal(s.expressions.length, 2);
+  });
+
   it("visits for‑loops, functions and tasks without mutation", () => {
     const src = `
       function add(a: int, b: int): int { return a + b; }

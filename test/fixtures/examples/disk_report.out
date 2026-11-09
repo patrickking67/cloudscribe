@@ -1,0 +1,5 @@
+Disk report (limit 80%)
+  /: 42% used [ok]
+  /var: 91% used [WARN]
+  /home: 67% used [ok]
+1 of 3 mounts over the limit

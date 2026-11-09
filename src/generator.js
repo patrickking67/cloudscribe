@@ -29,6 +29,23 @@ const IMPORTS = {
 }
 
 /**
+ * Turns the text of an interpolated string, in CloudScribe escape syntax, into
+ * the text of a JavaScript template literal. The escapes CloudScribe allows
+ * mean the same in both, so only a backtick and a `$` before `{` need one.
+ */
+function templateText(text) {
+  let js = ""
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    if (c === "\\") js += c + text[++i]
+    else if (c === "`") js += "\\`"
+    else if (c === "$" && text[i + 1] === "{") js += "\\$"
+    else js += c
+  }
+  return js
+}
+
+/**
  * Generates JavaScript source code from an optimized CloudScribe program AST.
  * @param {object} program - The optimized program AST.
  * @returns {string} The generated JavaScript source code.
@@ -78,6 +95,10 @@ export default function generate(program) {
         return `${exp(e.object)}.${e.field}`
       case "ArrayExpression":
         return `[${e.elements.map(exp).join(", ")}]`
+      case "InterpolatedString": {
+        const parts = e.expressions.map((x, i) => `\${${exp(x)}}${templateText(e.strings[i + 1])}`)
+        return `\`${templateText(e.strings[0])}${parts.join("")}\``
+      }
       case "FunctionCall":
         return `${exp(e.callee)}(${e.args.map(exp).join(", ")})`
       default:
@@ -194,6 +215,7 @@ export default function generate(program) {
       case "SubscriptExpression":
       case "MemberExpression":
       case "ArrayExpression":
+      case "InterpolatedString":
       case "Variable":
       case "Parameter":
         // A bare expression used as a statement, such as `x + 1;`.

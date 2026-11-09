@@ -24,7 +24,11 @@ const syntaxChecks = [
   ["boolean operations", "let x = true && !false || true;"],
   ["nested function calls", "f(g(h(x)));"],
   ["identifier with underscores", "const MAX_RETRIES = 3;"],
-  ["identifier starting with an underscore", "let _tmp = 1;"]
+  ["identifier starting with an underscore", "let _tmp = 1;"],
+  ["string interpolation", 'let s = "host ${name} returned ${code + 1}";'],
+  ["spaces inside an interpolation", 'let s = "a ${ x } b";'],
+  ["nested interpolation", 'let s = "a ${"b ${c}"} d";'],
+  ["escaped dollar sign", 'let s = "\\${HOME} costs $5";']
 ];
 
 const syntaxErrors = [
@@ -38,7 +42,9 @@ const syntaxErrors = [
   ["missing parameters", "function f {}", /Expected "\("/],
   ["bad parameter", "function f(x y) {}", /Expected ":"/],
   ["missing body", "if x", /Expected "{"/],
-  ["malformed string", 'let x = "hello;', /Expected "\\""$/],
+  ["malformed string", 'let x = "hello;', /Expected "\\"" or "\$\{"$/],
+  ["unclosed interpolation", 'let x = "host ${name";', /Line 1, col 21:\n> 1 \| let x = "host \$\{name";\n {26}\^\nExpected "\}"$/],
+  ["empty interpolation", 'let x = "${}";', /Line 1, col 12:[\s\S]*Expected "\("/],
   ["invalid character", "let #x = 1;", /Expected an identifier/],
   ["missing closing bracket", "let x = [1, 2, 3;", /Expected/],
   ["invalid task syntax", "task { return; }", /Expected an identifier/],
