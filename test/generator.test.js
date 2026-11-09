@@ -292,7 +292,7 @@ describe("The generator", () => {
         task: { name: "deploy", body: [{ kind: "ShortReturnStatement" }] }
       }]
     }
-    assert.equal(generate(prog), "// task: deploy\ndeploy_0: {\nbreak deploy_0;\n}")
+    assert.equal(generate(prog), "// task: deploy\ndeploy_0: {\n  break deploy_0;\n}")
   })
 
   it("TaskDeclaration keeps a returned value's evaluation before the break", () => {
@@ -307,7 +307,7 @@ describe("The generator", () => {
         }
       }]
     }
-    assert.match(generate(prog), /t_\d+: {\nf_\d+\(\);\nbreak t_\d+;\n}/)
+    assert.match(generate(prog), /t_\d+: {\n  f_\d+\(\);\n  break t_\d+;\n}/)
   })
 
   it("FunctionDeclaration inside a task still uses return", () => {
@@ -381,7 +381,7 @@ describe("The generator", () => {
     }
     const lines = generate(prog).split("\n")
     assert.match(lines[0], /function f_0\(p_1\) {/)
-    assert.match(lines[1], /return p_1;/)
+    assert.equal(lines[1], "  return p_1;")
     assert.equal(lines[2], "}")
   })
 
@@ -470,7 +470,7 @@ describe("The generator", () => {
         ] }
       ]
     }
-    assert.equal(generate(prog), "{\nlet y_0 = 2;\n}")
+    assert.equal(generate(prog), "{\n  let y_0 = 2;\n}")
   })
 
   it("unknown node kind throws", () => {
