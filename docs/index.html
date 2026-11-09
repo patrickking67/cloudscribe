@@ -114,6 +114,7 @@
           <label for="example" class="text-sm text-muted">Example</label>
           <select id="example" class="bg-ink text-text border border-rule rounded px-2 py-1.5 text-sm">
             <option value="health">Health check</option>
+            <option value="disk">Disk report with interpolation</option>
             <option value="config">Read config from env</option>
             <option value="broken">A type error</option>
           </select>
@@ -153,6 +154,7 @@
           <ul class="mt-6 space-y-2.5 leading-relaxed list-disc pl-5 marker:text-rule">
             <li>Undeclared, redeclared and unknown names, including unknown type names</li>
             <li>Type mismatches in assignments, arguments, returns, array elements and comparisons</li>
+            <li>Interpolating a value that is not an int, string or boolean, such as an array or an optional with no fallback</li>
             <li>Conditions that are not boolean, and <code>for ... in</code> over something that is not an array</li>
             <li>Calls to things that are not functions, and calls with the wrong number of arguments</li>
             <li>Assigning to a <code>const</code>, a loop variable or a task</li>
@@ -202,7 +204,7 @@ Expected assignment of type int, got string</code></pre>
     <section class="border-t border-rule" aria-labelledby="pipeline-title">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
         <h2 id="pipeline-title">How a file compiles</h2>
-        <p class="mt-4 text-muted prose-width leading-relaxed">Five small stages, each in its own file, each with its own tests. The whole compiler is about 1,500 lines with no build step.</p>
+        <p class="mt-4 text-muted prose-width leading-relaxed">Five small stages, each in its own file, each with its own tests. The whole compiler is about 1,600 lines with no build step.</p>
         <ol class="mt-8 grid sm:grid-cols-2 lg:grid-cols-5 gap-px bg-rule border border-rule rounded-lg overflow-hidden list-none">
           <li class="bg-ink p-5"><h3>Parse</h3><p class="mt-2 text-sm text-muted leading-relaxed">An Ohm grammar matches the source and reports syntax errors.</p></li>
           <li class="bg-ink p-5"><h3>Analyze</h3><p class="mt-2 text-sm text-muted leading-relaxed">Resolves scopes, infers and checks types, builds a typed tree.</p></li>
@@ -252,7 +254,7 @@ task checkServers {
   let failures = 0;
   for code in codes {
     if isHealthy(code) {
-      print("OK " + code);
+      print("OK ${code}");
     } else {
       failures++;
     }
@@ -261,7 +263,31 @@ task checkServers {
     print("Too many failures");
     return;
   }
-  print("Failures: " + failures);
+  print("Failures: ${failures}");
+}
+</script>
+  <script type="text/plain" id="example-disk">// Formats a disk usage report with string interpolation.
+const LIMIT = 80;
+
+function status(used: int): string {
+  return used > LIMIT ? "WARN" : "ok";
+}
+
+task diskReport {
+  let mounts = ["/", "/var", "/home"];
+  let usage = [42, 91, 67];
+  let index = 0;
+  let warnings = 0;
+  print("Disk report (limit ${LIMIT}%)");
+  for mount in mounts {
+    let used = usage[index];
+    print("  ${mount}: ${used}% used [${status(used)}]");
+    if used > LIMIT {
+      warnings++;
+    }
+    index++;
+  }
+  print("${warnings} of ${mounts.length} mounts over the limit");
 }
 </script>
   <script type="text/plain" id="example-config">// Reads settings from the environment and checks a config file before use.

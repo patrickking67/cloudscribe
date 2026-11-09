@@ -19,7 +19,7 @@
 
 ---
 
-CloudScribe is a small language for the kind of scripts that check servers, loop over services and report results. It adds what shell and plain JavaScript scripts usually skip: declared types, scoped names and compile-time checks, so a typo or a string where a number belongs fails before anything runs. A `.csc` file goes through a five-stage compiler (Ohm grammar, parser, semantic analyzer, optimizer, code generator) and comes out as readable JavaScript that runs on Node.js. The whole compiler is about 1,500 lines with no build step, so each stage is easy to read on its own. It ships with a CLI that can type-check, compile or run a file, a few built-ins for environment variables, files and shell commands, and a [playground](https://patrickking67.github.io/cloudscribe/) that runs the same compiler in the browser.
+CloudScribe is a small language for the kind of scripts that check servers, loop over services and report results. It adds what shell and plain JavaScript scripts usually skip: declared types, scoped names and compile-time checks, so a typo or a string where a number belongs fails before anything runs. A `.csc` file goes through a five-stage compiler (Ohm grammar, parser, semantic analyzer, optimizer, code generator) and comes out as readable JavaScript that runs on Node.js. The whole compiler is about 1,600 lines with no build step, so each stage is easy to read on its own. It ships with a CLI that can type-check, compile or run a file, a few built-ins for environment variables, files and shell commands, and a [playground](https://patrickking67.github.io/cloudscribe/) that runs the same compiler in the browser.
 
 ## Example
 
@@ -37,7 +37,7 @@ task checkServers {
   let failures = 0;
   for code in codes {
     if isHealthy(code) {
-      print("OK " + code);
+      print("OK ${code}");
     } else {
       failures++;
     }
@@ -46,7 +46,7 @@ task checkServers {
     print("Too many failures");
     return;
   }
-  print("Failures: " + failures);
+  print("Failures: ${failures}");
 }
 ```
 
@@ -55,28 +55,28 @@ task checkServers {
 ```js
 const MAX_FAILURES_0 = 1;
 function isHealthy_1(code_2) {
-return (code_2 == 200);
+  return (code_2 == 200);
 }
 // task: checkServers
 checkServers_5: {
-let codes_3 = [200, 503, 200];
-let failures_4 = 0;
-for (const code_2 of codes_3) {
-if (isHealthy_1(code_2)) {
-console.log(("OK " + code_2));
-} else {
-failures_4++;
-}
-}
-if ((failures_4 > MAX_FAILURES_0)) {
-console.log("Too many failures");
-break checkServers_5;
-}
-console.log(("Failures: " + failures_4));
+  let codes_3 = [200, 503, 200];
+  let failures_4 = 0;
+  for (const code_2 of codes_3) {
+    if (isHealthy_1(code_2)) {
+      console.log(`OK ${code_2}`);
+    } else {
+      failures_4++;
+    }
+  }
+  if ((failures_4 > MAX_FAILURES_0)) {
+    console.log("Too many failures");
+    break checkServers_5;
+  }
+  console.log(`Failures: ${failures_4}`);
 }
 ```
 
-Names get numeric suffixes so CloudScribe identifiers can never clash with JavaScript reserved words. A task becomes a block, and `return` inside a task becomes a labeled `break`. `npx cloudscribe checks.csc --run` compiles and runs it:
+Names get numeric suffixes so CloudScribe identifiers can never clash with JavaScript reserved words. A task becomes a block, `return` inside a task becomes a labeled `break`, and an interpolated string becomes a template literal. `npx cloudscribe checks.csc --run` compiles and runs it:
 
 ```text
 OK 200
@@ -141,6 +141,7 @@ Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file t
 - **Structure:** `task name { ... }` blocks for workflows and `function name(x: T): R { ... }` for reusable logic.
 - **Control flow:** `if`/`else`, `while`, `for x in array`, `break`, `return`.
 - **Operators:** arithmetic `+ - * / % **`, comparison `== != < <= > >=`, logical `&& || !`, bitwise `& | ^`, conditional `a ? b : c`, optionals `some x` and `x ?? fallback`, plus `++` and `--` statements.
+- **Strings:** double-quoted, with `\n`, `\t`, `\"`, `\\`, `\$` and `\u{...}` escapes, and interpolation: `"host ${name} returned ${code + 1}"`. Each embedded expression is type-checked and must be an `int`, `string` or `boolean`; write `\${` for a literal `${`.
 - **Members:** `length` on strings and arrays, typed `int`.
 - **Built-ins:** see the next section.
 
@@ -174,6 +175,7 @@ The analyzer rejects a program before code generation for:
 
 - Undeclared, redeclared or unknown names, including unknown type names
 - Type mismatches in assignments, arguments, returns, array elements, conditional branches and comparisons
+- Interpolated values that are not an `int`, `string` or `boolean`, such as an array, a void call or an optional without a `??` fallback
 - Non-boolean `if`, `while` and `?:` conditions, and `for ... in` over a non-array
 - Invalid operands for arithmetic, bitwise, unary and `??` operators
 - Calls to non-functions and calls with the wrong number of arguments
@@ -191,8 +193,8 @@ source.csc -> parser -> analyzer -> optimizer -> generator -> JavaScript
 | Grammar   | `src/cloudscribe.ohm` | PEG grammar for [Ohm](https://ohmjs.org/), including operator precedence |
 | Parser    | `src/parser.js`       | Matches source against the grammar and reports syntax errors         |
 | Analyzer  | `src/analyzer.js`     | Resolves scopes, infers and checks types, builds the typed AST       |
-| Optimizer | `src/optimizer.js`    | Folds constant numeric and boolean expressions, drops dead branches and `while false` loops |
-| Generator | `src/generator.js`    | Emits JavaScript, renaming identifiers and lowering tasks to blocks  |
+| Optimizer | `src/optimizer.js`    | Folds constant numeric and boolean expressions and literal parts of interpolated strings, drops dead branches and `while false` loops |
+| Generator | `src/generator.js`    | Emits indented JavaScript, renaming identifiers and lowering tasks to blocks |
 | Core      | `src/core.js`         | AST node constructors, built-in types and the standard library       |
 | Pipeline  | `src/compiler.js`     | Runs the stages up to the requested output                           |
 | CLI       | `src/cloudscribe.js`  | Reads a file, then checks, compiles or runs it                       |
@@ -201,11 +203,11 @@ source.csc -> parser -> analyzer -> optimizer -> generator -> JavaScript
 
 ```bash
 npm run check        # everything CI runs: repo checks, playground freshness, tests
-npm test             # 243 tests with Node's built-in coverage report for src/
+npm test             # 271 tests with Node's built-in coverage report for src/
 npm run test:only    # same tests, no coverage
 ```
 
-Tests use the built-in `node:test` runner: one file per compiler stage, plus the pipeline, CLI, built-ins, examples, playground and site. Every file in `examples/` is compiled, run in an empty directory and compared with its expected output in `test/fixtures/examples/`. Line coverage of `src/` is 98.8%.
+Tests use the built-in `node:test` runner: one file per compiler stage, plus the pipeline, CLI, built-ins, examples, playground and site. Every file in `examples/` is compiled, run in an empty directory and compared with its expected output in `test/fixtures/examples/`. Line coverage of `src/` is 99.2%.
 
 ## Playground and site
 

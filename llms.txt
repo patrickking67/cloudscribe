@@ -1,6 +1,6 @@
 # CloudScribe
 
-> CloudScribe is a small statically typed scripting language for IT automation that compiles to JavaScript for Node.js. It has int, string, boolean, array, optional and function types, `task` blocks and functions, compile-time type checking with line and column errors, built-ins for environment variables, files and shell commands, and a CLI that can type-check, compile or run a `.csc` file. The compiler is written in plain Node.js ESM with an Ohm grammar and no build step, and also runs in the browser playground on the project site.
+> CloudScribe is a small statically typed scripting language for IT automation that compiles to JavaScript for Node.js. It has int, string, boolean, array, optional and function types, `task` blocks and functions, type-checked string interpolation (`"host ${name}"`), compile-time type checking with line and column errors, built-ins for environment variables, files and shell commands, and a CLI that can type-check, compile or run a `.csc` file and prints indented JavaScript. The compiler is written in plain Node.js ESM with an Ohm grammar and no build step, and also runs in the browser playground on the project site.
 
 ## Docs
 

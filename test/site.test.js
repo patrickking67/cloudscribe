@@ -15,13 +15,17 @@ function example(id) {
 describe("The docs site", () => {
   it("has playground examples that compile, except the broken one", () => {
     assert.match(compile(example("health"), "js"), /checkServers_\d+: \{/)
+    assert.match(compile(example("health"), "js"), /console\.log\(`OK \$\{code_\d+\}`\);/)
+    assert.match(compile(example("disk"), "js"), /diskReport/)
     assert.match(compile(example("config"), "js"), /__cs_env/)
     assert.throws(() => compile(example("broken"), "js"), /Line 9, col 11:[\s\S]*Expected assignment of type int, got string/)
   })
 
-  it("shows the config example exactly as it is in examples/", () => {
-    const file = readFileSync(new URL("../examples/config_check.csc", import.meta.url), "utf8")
-    assert.equal(example("config"), file)
+  it("shows the config and disk examples exactly as they are in examples/", () => {
+    for (const [id, name] of [["config", "config_check"], ["disk", "disk_report"]]) {
+      const file = readFileSync(new URL(`../examples/${name}.csc`, import.meta.url), "utf8")
+      assert.equal(example(id), file, name)
+    }
   })
 
   it("links only to local files that exist", () => {
