@@ -2,6 +2,7 @@
 // browser copy of the compiler (docs/playground/, built by
 // scripts/build-playground.mjs) and runs the output in a worker.
 import compile from "./playground/compiler.js"
+import { MAX_SHARED_LENGTH, hashForProgram, programFromHash } from "./share.js"
 
 const source = document.getElementById("source")
 const output = document.getElementById("output")
@@ -9,15 +10,63 @@ const status = document.getElementById("status")
 const consoleOut = document.getElementById("console")
 const example = document.getElementById("example")
 const runButton = document.getElementById("run")
+const shareButton = document.getElementById("share")
+const shareStatus = document.getElementById("share-status")
 const stageButtons = [...document.querySelectorAll(".stage")]
 
 let stage = "js"
 let lastJs = null
 
-function loadExample(name) {
-  source.value = document.getElementById(`example-${name}`).textContent
+function loadSource(text) {
+  source.value = text
   consoleOut.hidden = true
+  shareStatus.textContent = ""
   compileNow()
+}
+
+function loadExample(name) {
+  // Picking an example leaves a shared program behind, so drop its fragment.
+  if (programFromHash(location.hash) !== null) history.replaceState(null, "", location.pathname + location.search)
+  loadSource(document.getElementById(`example-${name}`).textContent)
+}
+
+// Loads the program from a share link, if the URL has one. The text only goes
+// into the editor and the compiler. It is never run until someone presses Run.
+function loadShared() {
+  const shared = programFromHash(location.hash)
+  if (shared === null) return false
+  let option = example.querySelector('option[value="shared"]')
+  if (!option) {
+    option = new Option("Shared link", "shared")
+    option.disabled = true
+    example.append(option)
+  }
+  example.value = "shared"
+  loadSource(shared)
+  return true
+}
+
+function setStage(name) {
+  stage = name
+  for (const button of stageButtons) button.setAttribute("aria-pressed", String(button.dataset.stage === name))
+  compileNow()
+}
+
+async function copyLink() {
+  const hash = hashForProgram(source.value)
+  if (hash === null) {
+    shareStatus.textContent = source.value.length === 0
+      ? "Nothing to share yet"
+      : `Too long for a link (limit ${MAX_SHARED_LENGTH} characters)`
+    return
+  }
+  history.replaceState(null, "", hash)
+  try {
+    await navigator.clipboard.writeText(location.href)
+    shareStatus.textContent = "Link copied"
+  } catch {
+    shareStatus.textContent = "Link is in the address bar"
+  }
 }
 
 // Prints an AST without the circular references the analyzer creates.
@@ -37,7 +86,7 @@ function compileNow() {
   const started = performance.now()
   try {
     lastJs = compile(text, "js")
-    const shown = stage === "js" ? lastJs : printTree(compile(text, "optimized"))
+    const shown = stage === "js" ? lastJs : printTree(compile(text, stage))
     output.textContent = shown
     output.classList.remove("status-fault")
     const ms = Math.max(1, Math.round(performance.now() - started))
@@ -98,9 +147,17 @@ function runNow() {
 let pending
 source.addEventListener("input", () => {
   clearTimeout(pending)
+  shareStatus.textContent = ""
   pending = setTimeout(compileNow, 150)
 })
 source.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault()
+    clearTimeout(pending)
+    compileNow()
+    runNow()
+    return
+  }
   // Tab indents inside the editor. Escape then Tab moves focus on, as usual.
   if (event.key === "Tab" && !event.shiftKey && !source.dataset.escaped) {
     event.preventDefault()
@@ -113,12 +170,19 @@ source.addEventListener("keydown", (event) => {
 source.addEventListener("blur", () => delete source.dataset.escaped)
 example.addEventListener("change", () => loadExample(example.value))
 runButton.addEventListener("click", runNow)
-for (const button of stageButtons) {
+shareButton.addEventListener("click", copyLink)
+for (const button of stageButtons) button.addEventListener("click", () => setStage(button.dataset.stage))
+
+// Buttons elsewhere on the page that open an example at a given stage.
+for (const button of document.querySelectorAll("[data-open-example]")) {
   button.addEventListener("click", () => {
-    stage = button.dataset.stage
-    for (const other of stageButtons) other.setAttribute("aria-pressed", String(other === button))
-    compileNow()
+    example.value = button.dataset.openExample
+    loadExample(example.value)
+    setStage(button.dataset.openStage ?? "js")
+    document.getElementById("playground").scrollIntoView()
+    source.focus({ preventScroll: true })
   })
 }
 
-loadExample(example.value)
+window.addEventListener("hashchange", loadShared)
+if (!loadShared()) loadExample(example.value)
