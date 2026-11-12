@@ -11,11 +11,21 @@ Planned as 1.2.0. `package.json` is at 1.2.0.
 - String interpolation: `"host ${name} returned ${code}"`. Each embedded expression is type-checked and must be an `int`, `string` or `boolean`; an optional gets a hint to add a `??` fallback. It compiles to a JavaScript template literal, and the optimizer moves literal parts into the text.
 - The `\$` escape in string literals, so `"\${HOME}"` is the literal text `${HOME}`.
 - `examples/disk_report.csc` and a playground example that use interpolation.
+- Playground share links: Copy link stores the program in the URL fragment (`#code=`, base64url), and opening the link loads it into the editor. Damaged links fall back to the default example.
+- Playground tab for the typed AST next to the optimized AST and the JavaScript, a constant folding example, and Ctrl+Enter to run.
+- `examples/constant_folding.csc`, which shows the optimizer folding constants and removing a dead branch.
+- `docs/architecture.md`: the pipeline stage by stage with Mermaid diagrams and one program followed from source to JavaScript.
+- Site sections for the pipeline (inline SVG diagram, one line traced through every stage) and for how the project is tested, a light theme that follows the system setting, and Twitter card tags.
+- README screenshots of the playground in `docs/assets/`, a pipeline diagram and a table of quality signals.
+- `npm test` fails when the test count printed in the README, the site or `llms.txt` differs from the number of tests that ran.
 
 ### Changed
 
 - `${` inside a string literal now starts an interpolation. A string that meant a literal `${` must write `\${`, and an unclosed `${` is a syntax error.
 - Generated JavaScript is indented two spaces per block level instead of starting every line in column one.
+- The site uses a hand-written stylesheet (`docs/site.css`) instead of the Tailwind CDN script, so it loads no third-party scripts and the browser console is clean.
+- The playground's type error example and the error shown on the site are now the same program, and a test compares the printed error with the compiler's.
+- README reorganized: source and compiled output side by side, the engineering decisions with links to the code, and the language reference shortened in favor of the specification.
 
 ## [1.1.0] - untagged
 
