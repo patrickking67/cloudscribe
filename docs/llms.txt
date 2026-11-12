@@ -1,10 +1,11 @@
 # CloudScribe
 
-> CloudScribe is a small statically typed scripting language for IT automation that compiles to JavaScript for Node.js. It has int, string, boolean, array, optional and function types, `task` blocks and functions, type-checked string interpolation (`"host ${name}"`), compile-time type checking with line and column errors, built-ins for environment variables, files and shell commands, and a CLI that can type-check, compile or run a `.csc` file and prints indented JavaScript. The compiler is written in plain Node.js ESM with an Ohm grammar and no build step, and also runs in the browser playground on the project site.
+> CloudScribe is a small statically typed scripting language for IT automation that compiles to JavaScript for Node.js. It has int, string, boolean, array, optional and function types, `task` blocks and functions, type-checked string interpolation (`"host ${name}"`), compile-time type checking with line and column errors, built-ins for environment variables, files and shell commands, and a CLI that can type-check, compile or run a `.csc` file and prints indented JavaScript. The compiler is written in plain Node.js ESM with an Ohm grammar and no build step, and also runs in the browser playground on the project site. The suite has 285 tests and runs on Node.js 20, 22 and 24.
 
 ## Docs
 
 - [README](https://github.com/patrickking67/cloudscribe/blob/main/README.md): overview, quick start, CLI usage, built-ins and project layout
+- [Architecture](https://github.com/patrickking67/cloudscribe/blob/main/docs/architecture.md): the compiler pipeline stage by stage, with diagrams and one program followed from source to JavaScript
 - [Language specification](https://github.com/patrickking67/cloudscribe/blob/main/docs/language-spec.md): types, statements, operators, built-ins, diagnostics and compatibility rules
 - [Agent guide](https://github.com/patrickking67/cloudscribe/blob/main/AGENTS.md): commands, layout, conventions and definition of done for contributors and coding agents
 - [Contributing](https://github.com/patrickking67/cloudscribe/blob/main/CONTRIBUTING.md): setup, branch naming, commit style and PR checklist
@@ -18,7 +19,7 @@
 
 ## Live demo
 
-- [Project site and playground](https://patrickking67.github.io/cloudscribe/): compile CloudScribe in the browser and run the output
+- [Project site and playground](https://patrickking67.github.io/cloudscribe/): compile CloudScribe in the browser, view the typed and optimized AST, run the output and share a program as a link
 
 ## Optional
 

@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CloudScribe: type-checked scripts for IT automation</title>
   <meta name="description" content="CloudScribe is a small statically typed language for IT automation scripts. It catches type errors before anything runs and compiles to readable JavaScript for Node.js. Try the compiler in your browser.">
-  <meta name="theme-color" content="#10172a">
+  <meta name="theme-color" content="#10172a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f5fb" media="(prefers-color-scheme: light)">
   <link rel="canonical" href="https://patrickking67.github.io/cloudscribe/">
   <link rel="icon" href="logo.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
@@ -18,140 +19,201 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="CloudScribe logo with the tagline: type-checked scripts for IT automation, compiled to JavaScript.">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CloudScribe: type-checked scripts for IT automation">
+  <meta name="twitter:description" content="A small statically typed language that compiles to readable JavaScript. Try the compiler in your browser.">
+  <meta name="twitter:image" content="https://patrickking67.github.io/cloudscribe/og.png">
+  <meta name="twitter:image:alt" content="CloudScribe logo with the tagline: type-checked scripts for IT automation, compiled to JavaScript.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ink: "#10172a",
-            panel: "#182238",
-            rule: "#2a3654",
-            text: "#e3e8f2",
-            muted: "#a3afc6",
-            brand: "#8b93ff",
-            ok: "#5ee69b",
-            fault: "#ff8a80"
-          },
-          fontFamily: {
-            sans: ["IBM Plex Sans", "system-ui", "sans-serif"],
-            mono: ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    :root { color-scheme: dark; }
-    body { background: #10172a; color: #e3e8f2; font-family: "IBM Plex Sans", system-ui, sans-serif; }
-    /* Tailwind's preflight is injected after this sheet, so these rules are
-       scoped under body to win on specificity. Type scale, ratio 1.25 from 16px. */
-    body h1 { font-size: clamp(2.44rem, 6vw, 3.815rem); line-height: 1.05; letter-spacing: -0.02em; font-weight: 700; }
-    body h2 { font-size: 1.953rem; line-height: 1.2; letter-spacing: -0.01em; font-weight: 600; }
-    body h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
-    body .prose-width { max-width: 66ch; }
-    body a { color: #8b93ff; text-underline-offset: 3px; }
-    body a:hover { color: #b7bcff; }
-    body :focus-visible { outline: 2px solid #8b93ff; outline-offset: 3px; border-radius: 4px; }
-    body .skip { position: absolute; left: -9999px; }
-    body .skip:focus { left: 1rem; top: 1rem; z-index: 50; background: #182238; padding: .5rem 1rem; }
-    body pre, body code, body textarea, body .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
-    body pre { font-size: .875rem; line-height: 1.6; tab-size: 2; }
-    body .editor {
-      width: 100%; flex: 1; min-height: 22rem; resize: vertical; background: #0b1120; color: #e3e8f2; display: block;
-      border: 0; padding: 1rem 1.25rem; font-size: .875rem; line-height: 1.6; tab-size: 2; white-space: pre; overflow: auto;
-    }
-    body .editor:focus-visible { outline-offset: -2px; border-radius: 0; }
-    body .pane-out { background: #0b1120; min-height: 22rem; max-height: 32rem; overflow: auto; padding: 1rem 1.25rem; margin: 0; white-space: pre; height: 100%; }
-    body .stage[aria-pressed="true"] { background: #8b93ff; color: #10172a; }
-    body .status-ok { color: #5ee69b; }
-    body .status-fault { color: #ff8a80; }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
-    }
-  </style>
+  <link rel="stylesheet" href="site.css">
 </head>
-<body class="antialiased">
+<body>
   <a class="skip" href="#playground">Skip to the playground</a>
 
-  <header class="border-b border-rule">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-      <a href="./" class="flex items-center gap-2.5 text-text no-underline font-semibold">
-        <img src="logo.svg" alt="" width="28" height="28" class="rounded-md">
+  <header class="site-header">
+    <div class="wrap">
+      <a href="./" class="wordmark">
+        <img src="logo.svg" alt="" width="28" height="28">
         CloudScribe
       </a>
-      <nav aria-label="Main" class="flex flex-wrap gap-x-5 gap-y-1 text-[0.9375rem]">
-        <a href="#playground" class="no-underline text-muted hover:text-text">Playground</a>
-        <a href="#checks" class="no-underline text-muted hover:text-text">Checks</a>
-        <a href="#builtins" class="no-underline text-muted hover:text-text">Built-ins</a>
-        <a href="#install" class="no-underline text-muted hover:text-text">Install</a>
-        <a href="https://github.com/patrickking67/cloudscribe" class="no-underline text-muted hover:text-text">GitHub</a>
+      <nav aria-label="Main" class="site-nav">
+        <a href="#playground">Playground</a>
+        <a href="#how">How it works</a>
+        <a href="#checks">Checks</a>
+        <a href="#builtins">Built-ins</a>
+        <a href="#tests">Tests</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/patrickking67/cloudscribe">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-10" aria-labelledby="title">
-      <h1 id="title" class="max-w-[16ch]">Scripts that fail at compile time, not on the server.</h1>
-      <p class="prose-width mt-6 text-lg leading-relaxed text-muted">
-        CloudScribe is a small language for the scripts that check hosts, loop over services and read config.
-        It has declared types and scoped names, rejects a typo or a string where a number belongs before
-        anything runs, and compiles to plain JavaScript for Node.js.
-      </p>
-      <p class="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-        <a href="#install">Install the CLI</a>
-        <a href="https://github.com/patrickking67/cloudscribe/blob/main/docs/language-spec.md">Read the language spec</a>
+    <section class="wrap hero" aria-labelledby="title">
+      <h1 id="title">Scripts that fail at compile time, not on the server.</h1>
+      <p>
+        CloudScribe is a small typed language for the scripts that check hosts, loop over services and
+        read config. It rejects a typo or a string where a number belongs before anything runs, then
+        compiles to plain JavaScript for Node.js. The compiler below is the real one, running in this page.
       </p>
     </section>
 
-    <section id="playground" class="max-w-6xl mx-auto px-4 sm:px-6 pb-20" aria-labelledby="playground-title">
+    <section id="playground" class="wrap playground-section" aria-labelledby="playground-title">
       <h2 id="playground-title" class="sr-only">Playground</h2>
-      <div class="border border-rule rounded-lg overflow-hidden bg-panel">
-        <div class="flex flex-wrap items-center gap-3 px-3 sm:px-4 py-2.5 border-b border-rule">
-          <label for="example" class="text-sm text-muted">Example</label>
-          <select id="example" class="bg-ink text-text border border-rule rounded px-2 py-1.5 text-sm">
+      <div class="playground">
+        <div class="toolbar">
+          <label for="example">Example</label>
+          <select id="example">
             <option value="health">Health check</option>
             <option value="disk">Disk report with interpolation</option>
+            <option value="fold">Constant folding</option>
             <option value="config">Read config from env</option>
             <option value="broken">A type error</option>
           </select>
-          <div role="group" aria-label="Output" class="flex rounded border border-rule overflow-hidden text-sm ml-auto">
-            <button type="button" class="stage px-3 py-1.5" data-stage="js" aria-pressed="true">JavaScript</button>
-            <button type="button" class="stage px-3 py-1.5 border-l border-rule" data-stage="optimized" aria-pressed="false">Optimized AST</button>
+          <div class="push">
+            <span id="share-status" class="small muted" role="status"></span>
+            <button type="button" id="share" class="button">Copy link</button>
+            <button type="button" id="run" class="button primary">Run</button>
           </div>
-          <button type="button" id="run" class="px-4 py-1.5 rounded bg-brand text-ink text-sm font-semibold hover:bg-[#b7bcff]">Run</button>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2">
-          <div class="min-w-0 border-b lg:border-b-0 lg:border-r border-rule flex">
-            <label for="source" class="sr-only">CloudScribe source</label>
+        <div class="panes">
+          <div class="pane">
+            <div class="pane-head"><label for="source">CloudScribe source</label></div>
             <textarea id="source" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
           </div>
-          <div class="min-w-0">
-            <pre id="output" class="pane-out text-text" aria-live="polite" aria-label="Compiler output" tabindex="0">Loading the compiler...</pre>
+          <div class="pane">
+            <div class="pane-head tabs" role="group" aria-label="Compiler stage to show">
+              <button type="button" class="stage" data-stage="analyzed" aria-pressed="false">Typed AST</button>
+              <button type="button" class="stage" data-stage="optimized" aria-pressed="false">Optimized AST</button>
+              <button type="button" class="stage" data-stage="js" aria-pressed="true">JavaScript</button>
+            </div>
+            <pre id="output" class="pane-out" aria-live="polite" aria-label="Compiler output" tabindex="0">Loading the compiler...</pre>
           </div>
         </div>
-        <div class="border-t border-rule px-3 sm:px-4 py-2.5 text-sm">
+        <div class="result">
           <p id="status" class="mono" role="status">Compiling in your browser.</p>
-          <pre id="console" class="mt-2 text-muted whitespace-pre-wrap" aria-label="Program output" hidden></pre>
+          <pre id="console" aria-label="Program output" hidden></pre>
         </div>
       </div>
-      <noscript><p class="mt-4 text-muted">The playground needs JavaScript. The CLI does the same thing: <code>cloudscribe file.csc</code>.</p></noscript>
-      <p class="mt-4 text-sm text-muted prose-width">
-        The compiler runs in this page, the same code as the CLI. Run executes the JavaScript in a sandboxed
-        worker. Programs that use files, environment variables or the shell need Node.js, so run those with
-        <code class="text-text">cloudscribe file.csc --run</code>.
+      <noscript><p class="note muted">The playground needs JavaScript. The CLI does the same thing: <code>cloudscribe file.csc</code>.</p></noscript>
+      <p class="note small muted measure">
+        Edit the source and the output follows. Run, or <kbd>Ctrl</kbd> <kbd>Enter</kbd>, executes the JavaScript in a
+        sandboxed worker. Copy link puts the program in the URL, so the link opens with your code. Programs that
+        use files, environment variables or the shell need Node.js: run those with
+        <code>cloudscribe file.csc --run</code>.
       </p>
     </section>
 
-    <section id="checks" class="border-t border-rule" aria-labelledby="checks-title">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-10">
+    <section id="how" class="band" aria-labelledby="how-title">
+      <div class="wrap">
+        <h2 id="how-title">How a file compiles</h2>
+        <p class="muted measure">Four stages, each in its own file with its own tests. A syntax or type error stops the pipeline before any JavaScript exists. The whole compiler is about 1,600 lines with no build step.</p>
+
+        <figure class="pipeline">
+          <svg class="wide" viewBox="0 0 1180 250" role="img" aria-labelledby="pipe-title pipe-desc">
+            <title id="pipe-title">The CloudScribe compiler pipeline</title>
+            <desc id="pipe-desc">Source text goes to Parse, which produces a match. Analyze turns the match into a typed AST. Optimize folds it. Generate emits JavaScript. A syntax error in Parse or a type error in Analyze stops the pipeline with exit code 1.</desc>
+            <text class="edge" x="50" y="70" font-size="13" text-anchor="middle">source</text>
+            <path class="flow" d="M10 82H92" stroke-width="1.5"/><path class="head" d="M100 82l-9-5v10z"/>
+            <rect class="box" x="100" y="34" width="170" height="96" rx="8" stroke-width="1.5"/>
+            <text x="185" y="68" font-size="17" font-weight="600" text-anchor="middle">Parse</text>
+            <text class="edge" x="185" y="91" font-size="13" text-anchor="middle">Ohm PEG grammar</text>
+            <text class="file" x="185" y="113" font-size="12" text-anchor="middle">parser.js</text>
+
+            <text class="edge" x="315" y="70" font-size="13" text-anchor="middle">match</text>
+            <path class="flow" d="M270 82H352" stroke-width="1.5"/><path class="head" d="M360 82l-9-5v10z"/>
+            <rect class="box" x="360" y="34" width="170" height="96" rx="8" stroke-width="1.5"/>
+            <text x="445" y="68" font-size="17" font-weight="600" text-anchor="middle">Analyze</text>
+            <text class="edge" x="445" y="91" font-size="13" text-anchor="middle">scopes and types</text>
+            <text class="file" x="445" y="113" font-size="12" text-anchor="middle">analyzer.js</text>
+
+            <text class="edge" x="575" y="70" font-size="13" text-anchor="middle">typed AST</text>
+            <path class="flow" d="M530 82H612" stroke-width="1.5"/><path class="head" d="M620 82l-9-5v10z"/>
+            <rect class="box" x="620" y="34" width="170" height="96" rx="8" stroke-width="1.5"/>
+            <text x="705" y="68" font-size="17" font-weight="600" text-anchor="middle">Optimize</text>
+            <text class="edge" x="705" y="91" font-size="13" text-anchor="middle">folds, drops dead code</text>
+            <text class="file" x="705" y="113" font-size="12" text-anchor="middle">optimizer.js</text>
+
+            <text class="edge" x="835" y="70" font-size="13" text-anchor="middle">smaller AST</text>
+            <path class="flow" d="M790 82H872" stroke-width="1.5"/><path class="head" d="M880 82l-9-5v10z"/>
+            <rect class="box" x="880" y="34" width="170" height="96" rx="8" stroke-width="1.5"/>
+            <text x="965" y="68" font-size="17" font-weight="600" text-anchor="middle">Generate</text>
+            <text class="edge" x="965" y="91" font-size="13" text-anchor="middle">emits an ES module</text>
+            <text class="file" x="965" y="113" font-size="12" text-anchor="middle">generator.js</text>
+
+            <text class="edge" x="1112" y="70" font-size="13" text-anchor="middle">JavaScript</text>
+            <path class="flow" d="M1050 82H1162" stroke-width="1.5"/><path class="head" d="M1170 82l-9-5v10z"/>
+
+            <path class="stop" d="M185 130V184" stroke-width="1.5"/><path class="stop-head" d="M185 192l-5-9h10z"/>
+            <text class="stop-text" x="197" y="162" font-size="13">syntax error</text>
+            <path class="stop" d="M445 130V184" stroke-width="1.5"/><path class="stop-head" d="M445 192l-5-9h10z"/>
+            <text class="stop-text" x="457" y="162" font-size="13">type error</text>
+            <rect class="box" x="100" y="192" width="430" height="48" rx="8" stroke-width="1.5"/>
+            <text x="315" y="221" font-size="14" text-anchor="middle">Line, column and a caret under the code. Exit 1.</text>
+          </svg>
+          <svg class="tall" viewBox="0 0 340 600" role="img" aria-labelledby="pipe-title-tall pipe-desc-tall">
+            <title id="pipe-title-tall">The CloudScribe compiler pipeline</title>
+            <desc id="pipe-desc-tall">Source text goes to Parse, which produces a match. Analyze turns the match into a typed AST. Optimize folds it. Generate emits JavaScript. A syntax error in Parse or a type error in Analyze stops the pipeline with exit code 1.</desc>
+            <text class="edge" x="120" y="16" font-size="13" text-anchor="middle">source</text>
+            <path class="flow" d="M120 24V46" stroke-width="1.5"/><path class="head" d="M120 54l-5-9h10z"/>
+            <rect class="box" x="10" y="54" width="220" height="84" rx="8" stroke-width="1.5"/>
+            <text x="120" y="84" font-size="17" font-weight="600" text-anchor="middle">Parse</text>
+            <text class="edge" x="120" y="105" font-size="13" text-anchor="middle">Ohm PEG grammar</text>
+            <text class="file" x="120" y="125" font-size="12" text-anchor="middle">parser.js</text>
+            <path class="stop" d="M230 96H250" stroke-width="1.5"/><path class="stop-head" d="M258 96l-9-5v10z"/>
+            <text class="stop-text" x="264" y="92" font-size="12.5">syntax</text>
+            <text class="stop-text" x="264" y="108" font-size="12.5">error, exit 1</text>
+
+            <path class="flow" d="M120 138V182" stroke-width="1.5"/><path class="head" d="M120 190l-5-9h10z"/>
+            <text class="edge" x="132" y="168" font-size="13">match</text>
+            <rect class="box" x="10" y="190" width="220" height="84" rx="8" stroke-width="1.5"/>
+            <text x="120" y="220" font-size="17" font-weight="600" text-anchor="middle">Analyze</text>
+            <text class="edge" x="120" y="241" font-size="13" text-anchor="middle">scopes and types</text>
+            <text class="file" x="120" y="261" font-size="12" text-anchor="middle">analyzer.js</text>
+            <path class="stop" d="M230 232H250" stroke-width="1.5"/><path class="stop-head" d="M258 232l-9-5v10z"/>
+            <text class="stop-text" x="264" y="228" font-size="12.5">type</text>
+            <text class="stop-text" x="264" y="244" font-size="12.5">error, exit 1</text>
+
+            <path class="flow" d="M120 274V318" stroke-width="1.5"/><path class="head" d="M120 326l-5-9h10z"/>
+            <text class="edge" x="132" y="304" font-size="13">typed AST</text>
+            <rect class="box" x="10" y="326" width="220" height="84" rx="8" stroke-width="1.5"/>
+            <text x="120" y="356" font-size="17" font-weight="600" text-anchor="middle">Optimize</text>
+            <text class="edge" x="120" y="377" font-size="13" text-anchor="middle">folds, drops dead code</text>
+            <text class="file" x="120" y="397" font-size="12" text-anchor="middle">optimizer.js</text>
+
+            <path class="flow" d="M120 410V454" stroke-width="1.5"/><path class="head" d="M120 462l-5-9h10z"/>
+            <text class="edge" x="132" y="440" font-size="13">smaller AST</text>
+            <rect class="box" x="10" y="462" width="220" height="84" rx="8" stroke-width="1.5"/>
+            <text x="120" y="492" font-size="17" font-weight="600" text-anchor="middle">Generate</text>
+            <text class="edge" x="120" y="513" font-size="13" text-anchor="middle">emits an ES module</text>
+            <text class="file" x="120" y="533" font-size="12" text-anchor="middle">generator.js</text>
+            <path class="flow" d="M120 546V568" stroke-width="1.5"/><path class="head" d="M120 576l-5-9h10z"/>
+            <text class="edge" x="120" y="594" font-size="13" text-anchor="middle">JavaScript</text>
+          </svg>
+        </figure>
+
+        <h3 class="trace-title">One line, followed through every stage</h3>
+        <ol class="trace">
+          <li><span class="step">Source</span><pre><code>const TIMEOUT = 5 * 60;</code></pre></li>
+          <li><span class="step">Typed AST, after Analyze</span><pre><code>BinaryExpression op='*' left=5 right=60 type='int'</code></pre></li>
+          <li><span class="step">Optimized AST</span><pre><code>VariableDeclaration variable=#3 initializer=300</code></pre></li>
+          <li><span class="step">JavaScript</span><pre><code>const TIMEOUT_0 = 300;</code></pre></li>
+        </ol>
+        <p class="trace-foot small muted measure">
+          This is real output from <code>cloudscribe file.csc analyzed</code>, <code>optimized</code> and <code>js</code>.
+          <button type="button" class="button" data-open-example="fold" data-open-stage="optimized">Open the whole program in the playground</button>
+          or read the <a href="https://github.com/patrickking67/cloudscribe/blob/main/docs/architecture.md">architecture notes</a>.
+        </p>
+      </div>
+    </section>
+
+    <section id="checks" class="band" aria-labelledby="checks-title">
+      <div class="wrap split">
         <div>
           <h2 id="checks-title">What the compiler rejects</h2>
-          <p class="mt-4 text-muted prose-width leading-relaxed">Every error stops compilation and points at the line and column, with the offending code underlined.</p>
-          <ul class="mt-6 space-y-2.5 leading-relaxed list-disc pl-5 marker:text-rule">
+          <p class="muted measure">Every error stops compilation and points at the line and column, with the offending code underlined.</p>
+          <ul class="checks">
             <li>Undeclared, redeclared and unknown names, including unknown type names</li>
             <li>Type mismatches in assignments, arguments, returns, array elements and comparisons</li>
             <li>Interpolating a value that is not an int, string or boolean, such as an array or an optional with no fallback</li>
@@ -161,68 +223,82 @@
             <li><code>break</code> outside a loop and <code>return</code> outside a function or task</li>
           </ul>
         </div>
-        <figure class="min-w-0">
-          <pre class="bg-[#0b1120] border border-rule rounded-lg p-5 overflow-x-auto"><code><span class="text-muted">$ cloudscribe retry.csc --check</span>
-<span class="text-fault">error: retry.csc: Line 2, col 11:</span>
-  1 | let retries = 3;
-&gt; 2 | retries = "three";
-                ^~~~~~~
-  3 |
-Expected assignment of type int, got string</code></pre>
-          <figcaption class="mt-3 text-sm text-muted">Exit code 1, and nothing is generated.</figcaption>
+        <figure class="shrink">
+          <pre class="code"><code><span class="muted">$ cloudscribe disk.csc --check</span>
+<span class="status-fault">error: disk.csc: Line 10, col 18:</span>
+   9 |   for used in usage {
+&gt; 10 |     if overLimit(used) {
+                        ^~~~
+  11 |       print("${used}% is over the limit");
+Expected argument 1 of type int, got string</code></pre>
+          <figcaption>Exit code 1, and nothing is generated. This is the "A type error" example in the playground.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="builtins" class="border-t border-rule" aria-labelledby="builtins-title">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+    <section id="builtins" class="band" aria-labelledby="builtins-title">
+      <div class="wrap">
         <h2 id="builtins-title">Built-in functions</h2>
-        <p class="mt-4 text-muted prose-width leading-relaxed">Enough to read settings, touch files and call other tools. Functions that can come back empty return an optional, so the compiler makes you supply a fallback with <code class="text-text">??</code>.</p>
-        <div class="mt-8 overflow-x-auto">
-          <table class="w-full text-left text-[0.9375rem] border-collapse min-w-[36rem]">
+        <p class="muted measure">Enough to read settings, touch files and call other tools. Functions that can come back empty return an optional, so the compiler makes you supply a fallback with <code>??</code>.</p>
+        <div class="scroll" tabindex="0" role="region" aria-labelledby="builtins-title">
+          <table>
             <thead>
-              <tr class="border-b border-rule text-muted">
-                <th scope="col" class="py-2 pr-6 font-medium">Signature</th>
-                <th scope="col" class="py-2 font-medium">What it does</th>
-              </tr>
+              <tr><th scope="col">Signature</th><th scope="col">What it does</th></tr>
             </thead>
-            <tbody class="mono text-sm">
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">print(value)</td><td class="py-2.5 font-sans text-muted">Writes a line to stdout</td></tr>
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">env(name: string): string?</td><td class="py-2.5 font-sans text-muted">Reads an environment variable</td></tr>
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">readFile(path: string): string</td><td class="py-2.5 font-sans text-muted">Reads a UTF-8 file</td></tr>
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">writeFile(path: string, text: string)</td><td class="py-2.5 font-sans text-muted">Writes a UTF-8 file, replacing it</td></tr>
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">fileExists(path: string): boolean</td><td class="py-2.5 font-sans text-muted">Checks that a path exists</td></tr>
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">toInt(text: string): int?</td><td class="py-2.5 font-sans text-muted">Parses a whole number, or gives nothing</td></tr>
-              <tr class="border-b border-rule/60"><td class="py-2.5 pr-6 whitespace-nowrap">shell(command: string): string</td><td class="py-2.5 font-sans text-muted">Runs a command and returns its output</td></tr>
-              <tr><td class="py-2.5 pr-6 whitespace-nowrap">exit(code: int)</td><td class="py-2.5 font-sans text-muted">Stops the program with an exit code</td></tr>
+            <tbody>
+              <tr><td class="sig">print(value)</td><td class="what">Writes a line to stdout</td></tr>
+              <tr><td class="sig">env(name: string): string?</td><td class="what">Reads an environment variable</td></tr>
+              <tr><td class="sig">readFile(path: string): string</td><td class="what">Reads a UTF-8 file</td></tr>
+              <tr><td class="sig">writeFile(path: string, text: string)</td><td class="what">Writes a UTF-8 file, replacing it</td></tr>
+              <tr><td class="sig">fileExists(path: string): boolean</td><td class="what">Checks that a path exists</td></tr>
+              <tr><td class="sig">toInt(text: string): int?</td><td class="what">Parses a whole number, or gives nothing</td></tr>
+              <tr><td class="sig">shell(command: string): string</td><td class="what">Runs a command and returns its output</td></tr>
+              <tr><td class="sig">exit(code: int)</td><td class="what">Stops the program with an exit code</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <section class="border-t border-rule" aria-labelledby="pipeline-title">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-        <h2 id="pipeline-title">How a file compiles</h2>
-        <p class="mt-4 text-muted prose-width leading-relaxed">Five small stages, each in its own file, each with its own tests. The whole compiler is about 1,600 lines with no build step.</p>
-        <ol class="mt-8 grid sm:grid-cols-2 lg:grid-cols-5 gap-px bg-rule border border-rule rounded-lg overflow-hidden list-none">
-          <li class="bg-ink p-5"><h3>Parse</h3><p class="mt-2 text-sm text-muted leading-relaxed">An Ohm grammar matches the source and reports syntax errors.</p></li>
-          <li class="bg-ink p-5"><h3>Analyze</h3><p class="mt-2 text-sm text-muted leading-relaxed">Resolves scopes, infers and checks types, builds a typed tree.</p></li>
-          <li class="bg-ink p-5"><h3>Optimize</h3><p class="mt-2 text-sm text-muted leading-relaxed">Folds constants and drops branches that can never run.</p></li>
-          <li class="bg-ink p-5"><h3>Generate</h3><p class="mt-2 text-sm text-muted leading-relaxed">Emits JavaScript and renames identifiers so they never clash.</p></li>
-          <li class="bg-ink p-5"><h3>Run</h3><p class="mt-2 text-sm text-muted leading-relaxed">Node.js runs the output as an ES module, or the CLI does it for you.</p></li>
-        </ol>
+    <section id="tests" class="band" aria-labelledby="tests-title">
+      <div class="wrap">
+        <h2 id="tests-title">How it is tested</h2>
+        <p class="muted measure">One command, <code>npm run check</code>, runs everything locally and in CI. The numbers below come from that command and a test fails if the test count here goes stale.</p>
+        <dl class="facts">
+          <div>
+            <dt>285 tests</dt>
+            <dd>One suite per compiler stage, plus the CLI, built-ins, examples, playground and this site. Node's built-in runner, no test framework.</dd>
+          </div>
+          <div>
+            <dt>99.2% line coverage</dt>
+            <dd>Of <code>src/</code>, measured by Node's native coverage on Node 24. Branch coverage is 95.8%.</dd>
+          </div>
+          <div>
+            <dt>Node 20, 22 and 24</dt>
+            <dd>CI runs the same check on all three for every push and pull request, with read-only permissions.</dd>
+          </div>
+          <div>
+            <dt>10 examples executed</dt>
+            <dd>Every program in <code>examples/</code> is compiled, run in an empty directory and compared with its expected output.</dd>
+          </div>
+        </dl>
+        <p class="note small muted measure">
+          Generated code is checked by running it, not only by matching strings. The copy of the compiler in this
+          page is compared with <code>src/</code> on every run, so the playground cannot drift from the CLI.
+          See the <a href="https://github.com/patrickking67/cloudscribe/tree/main/test">test suites</a> and the
+          <a href="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml">CI runs</a>.
+        </p>
       </div>
     </section>
 
-    <section id="install" class="border-t border-rule" aria-labelledby="install-title">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-10">
+    <section id="install" class="band" aria-labelledby="install-title">
+      <div class="wrap split wide-right">
         <div>
           <h2 id="install-title">Install</h2>
-          <p class="mt-4 text-muted leading-relaxed prose-width">Needs Node.js 20 or later. Clone the repository, then link the CLI so <code class="text-text">cloudscribe</code> is on your path.</p>
-          <p class="mt-4 text-muted leading-relaxed prose-width">Exit code 0 means success, 1 a syntax or type error, 2 a bad argument or unreadable file. With <code class="text-text">--run</code> you get the program's own exit code.</p>
+          <p class="muted measure">Needs Node.js 20 or later. Clone the repository, then link the CLI so <code>cloudscribe</code> is on your path.</p>
+          <p class="muted measure follow">Exit code 0 means success, 1 a syntax or type error, 2 a bad argument or unreadable file. With <code>--run</code> you get the program's own exit code.</p>
         </div>
-        <pre class="bg-[#0b1120] border border-rule rounded-lg p-5 overflow-x-auto"><code>git clone https://github.com/patrickking67/cloudscribe.git
+        <pre class="code"><code>git clone https://github.com/patrickking67/cloudscribe.git
 cd cloudscribe
 npm ci
 npm link
@@ -234,11 +310,16 @@ cloudscribe examples/config_check.csc --out check.mjs</code></pre>
     </section>
   </main>
 
-  <footer class="border-t border-rule">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+  <footer class="site-footer">
+    <div class="wrap">
       <p>MIT licensed. Written by <a href="https://github.com/patrickking67">Patrick King</a>.</p>
-      <p><a href="https://github.com/patrickking67/cloudscribe">Source on GitHub</a></p>
-      <p><a href="llms.txt">llms.txt</a></p>
+      <ul>
+        <li><a href="https://github.com/patrickking67/cloudscribe">Source</a></li>
+        <li><a href="https://github.com/patrickking67/cloudscribe/blob/main/docs/language-spec.md">Language spec</a></li>
+        <li><a href="https://github.com/patrickking67/cloudscribe/blob/main/docs/architecture.md">Architecture</a></li>
+        <li><a href="https://github.com/patrickking67/cloudscribe/blob/main/CHANGELOG.md">Changelog</a></li>
+        <li><a href="llms.txt">llms.txt</a></li>
+      </ul>
     </div>
   </footer>
 
@@ -290,6 +371,20 @@ task diskReport {
   print("${warnings} of ${mounts.length} mounts over the limit");
 }
 </script>
+  <script type="text/plain" id="example-fold">// Shows what the optimizer does before any JavaScript is written.
+// Compare the typed AST with the optimized AST in the playground.
+const TIMEOUT = 5 * 60;
+
+task patchHosts {
+  let hosts = ["web-01", "db-01"];
+  for host in hosts {
+    print("${host}: timeout ${TIMEOUT}s, attempt ${1} of ${1 + 2}");
+  }
+  if 2 ** 10 < 1000 {
+    print("unreachable");
+  }
+}
+</script>
   <script type="text/plain" id="example-config">// Reads settings from the environment and checks a config file before use.
 const configPath = env("CONFIG_PATH") ?? "config.json";
 const retries = toInt(env("RETRIES") ?? "3") ?? 3;
@@ -305,15 +400,23 @@ task checkConfig {
   print("Config size: " + text.length + " characters");
 }
 </script>
-  <script type="text/plain" id="example-broken">let retries = 3;
-let hosts = ["web-01", "db-01"];
+  <script type="text/plain" id="example-broken">const LIMIT = 80;
 
-for host in hosts {
-  print("Checking " + host);
+function overLimit(used: int): boolean {
+  return used > LIMIT;
 }
 
-// A string where an int belongs. Fix it to see the JavaScript.
-retries = "three";
+task diskCheck {
+  let usage = ["42", "91", "67"];
+  for used in usage {
+    if overLimit(used) {
+      print("${used}% is over the limit");
+    }
+  }
+}
+
+// usage holds strings, but overLimit takes an int.
+// Remove the quotes around the numbers to see the JavaScript.
 </script>
 
   <script src="playground/ohm.min.js"></script>
