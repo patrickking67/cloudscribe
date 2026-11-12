@@ -5,6 +5,7 @@ test -f AGENTS.md
 test "$(cat CLAUDE.md)" = "@AGENTS.md"
 test -f .github/copilot-instructions.md
 test -f docs/language-spec.md
+test -f docs/architecture.md
 test -f SECURITY.md
 test -f CONTRIBUTING.md
 test -f CHANGELOG.md
