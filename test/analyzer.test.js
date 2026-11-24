@@ -195,6 +195,8 @@ const semanticChecks = [
 const semanticErrors = [
   ["redeclared variable", "let x = 1; let x = 2;", /Identifier x already declared/],
   ["undeclared variable", "print(x);", /Identifier x not declared/],
+  ["undeclared variable close to a declared one", "let count = 1; print(cuont);", /Identifier cuont not declared\. Did you mean count\?/],
+  ["undeclared name close to a built-in", "prnt(1);", /Identifier prnt not declared\. Did you mean print\?/],
   ["non-boolean in if condition", "if 1 { let x = 1; }", /Expected a boolean, got int/],
   ["non-boolean in while condition", "while 1 { let x = 1; }", /Expected a boolean/],
   ["non-array in for loop", "for i in 5 { let x = 1; }", /Expected an array, got int/],
