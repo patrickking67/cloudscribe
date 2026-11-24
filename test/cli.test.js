@@ -232,3 +232,10 @@ test("CLI --watch needs a readable file", () => {
   assert.equal(result.status, 2);
   assert.match(result.stderr, /file not found/);
 });
+
+test("CLI prints every syntax error it finds and exits with 1", () => {
+  const { file } = sourceFile("let a = ;\nlet b = 2;\nlet c = 3 +;\n");
+  const result = run([file, "--check"]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Line 1, col 9[\s\S]*Line 3, col 12[\s\S]*2 syntax errors/);
+});
