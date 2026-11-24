@@ -151,6 +151,7 @@ The full rules, the operator table and every diagnostic are in the [language spe
 cloudscribe <file.csc> [stage] [--out <file>]
 cloudscribe <file.csc> --check
 cloudscribe <file.csc> --run [--out <file>]
+cloudscribe <file.csc> [--check | --run | stage] --watch
 ```
 
 | Option or stage | Result |
@@ -162,6 +163,7 @@ cloudscribe <file.csc> --run [--out <file>]
 | `--check` | Type-checks without generating code and prints `<file>: ok` |
 | `--run` | Compiles and runs the program with Node.js in the current directory |
 | `--out <file>` | Writes the output to a file (with `--run`, keeps the compiled file) |
+| `--watch`, `-w` | Repeats the command every time the file is saved. Press Ctrl+C to stop |
 
 Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file that cannot be read or written. With `--run`, the exit code is the program's own.
 
