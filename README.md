@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml"><img src="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="#quality"><img src="https://img.shields.io/badge/tests-291%20passing-brightgreen.svg" alt="291 tests passing"></a>
+  <a href="#quality"><img src="https://img.shields.io/badge/tests-305%20passing-brightgreen.svg" alt="305 tests passing"></a>
   <a href="https://patrickking67.github.io/cloudscribe/"><img src="https://img.shields.io/badge/playground-live-6366f1.svg" alt="Live playground"></a>
 </p>
 
@@ -123,7 +123,7 @@ flowchart LR
 | Stage | File | What it does |
 |-------|------|--------------|
 | Grammar | [`src/cloudscribe.ohm`](src/cloudscribe.ohm) | PEG grammar for [Ohm](https://ohmjs.org/), with operator precedence encoded in the rules |
-| Parse | [`src/parser.js`](src/parser.js) | Matches source against the grammar and reports syntax errors |
+| Parse | [`src/parser.js`](src/parser.js) | Matches source against the grammar and reports up to 10 syntax errors at once ([`src/recover.js`](src/recover.js)) |
 | Analyze | [`src/analyzer.js`](src/analyzer.js) | Resolves scopes, infers and checks types, builds the typed AST |
 | Optimize | [`src/optimizer.js`](src/optimizer.js) | Folds numeric and boolean constants and literal parts of interpolated strings, removes dead branches and `while false` loops |
 | Generate | [`src/generator.js`](src/generator.js) | Emits indented JavaScript, suffixes names so they never clash with reserved words, lowers tasks to blocks |
@@ -171,8 +171,8 @@ Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file t
 
 | Signal | Current state |
 |--------|---------------|
-| Tests | 291 tests in 11 files on Node's built-in runner. [`scripts/test.mjs`](scripts/test.mjs) fails if this number goes stale |
-| Coverage of `src/` | 98.9% of lines, 95.2% of branches (Node's native coverage, Node 24) |
+| Tests | 305 tests in 11 files on Node's built-in runner. [`scripts/test.mjs`](scripts/test.mjs) fails if this number goes stale |
+| Coverage of `src/` | 98.9% of lines, 95.8% of branches (Node's native coverage, Node 24) |
 | CI | `npm run check` on Node 20, 22 and 24 for every push and pull request, with read-only permissions |
 | Examples | 10 programs compiled, run and compared with expected output |
 | Playground | Browser copy of the compiler checked against `src/` on every run |
