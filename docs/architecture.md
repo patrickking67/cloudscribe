@@ -84,7 +84,7 @@ $ npx cloudscribe examples/constant_folding.csc parsed
 Syntax is ok
 ```
 
-[`src/cloudscribe.ohm`](../src/cloudscribe.ohm) is a PEG grammar. Operator precedence is encoded as a ladder of rules, `Exp` down to `Exp11`, so `2 ** 10 < 1000` parses as `(2 ** 10) < 1000` with no precedence table anywhere else. The parser returns Ohm's match object; no tree is built yet. A syntax error is reported by Ohm with the line, the column and what it expected to see.
+[`src/cloudscribe.ohm`](../src/cloudscribe.ohm) is a PEG grammar. Operator precedence is encoded as a ladder of rules, `Exp` down to `Exp11`, so `2 ** 10 < 1000` parses as `(2 ** 10) < 1000` with no precedence table anywhere else. The parser returns Ohm's match object; no tree is built yet. A syntax error is reported with the line, the column and what the grammar expected to see. The grammar itself stops at the first error, so [`src/recover.js`](../src/recover.js) blanks out the broken statement (found by scanning for `;`, `{` and `}` outside string literals) and parses again, up to 10 times. Each error keeps its own line and column in `error.diagnostics`. Braces left behind by a recovery are not reported again, but later errors can still be knock-on effects of earlier ones, so fix from the top.
 
 ### 2. Analyze
 

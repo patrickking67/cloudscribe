@@ -8,6 +8,7 @@ Planned as 1.2.0. `package.json` is at 1.2.0.
 
 ### Added
 
+- Syntax error recovery: the parser reports up to 10 syntax errors in one run instead of stopping at the first. A single error prints exactly as before. Each error carries its line and column in `error.diagnostics` for editors and the playground.
 - `--watch` (`-w`) on the CLI: type-check, compile or run again every time the file is saved. Errors are printed and watching continues.
 - String interpolation: `"host ${name} returned ${code}"`. Each embedded expression is type-checked and must be an `int`, `string` or `boolean`; an optional gets a hint to add a `??` fallback. It compiles to a JavaScript template literal, and the optimizer moves literal parts into the text.
 - The `\$` escape in string literals, so `"\${HOME}"` is the literal text `${HOME}`.

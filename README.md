@@ -123,7 +123,7 @@ flowchart LR
 | Stage | File | What it does |
 |-------|------|--------------|
 | Grammar | [`src/cloudscribe.ohm`](src/cloudscribe.ohm) | PEG grammar for [Ohm](https://ohmjs.org/), with operator precedence encoded in the rules |
-| Parse | [`src/parser.js`](src/parser.js) | Matches source against the grammar and reports syntax errors |
+| Parse | [`src/parser.js`](src/parser.js) | Matches source against the grammar and reports up to 10 syntax errors at once ([`src/recover.js`](src/recover.js)) |
 | Analyze | [`src/analyzer.js`](src/analyzer.js) | Resolves scopes, infers and checks types, builds the typed AST |
 | Optimize | [`src/optimizer.js`](src/optimizer.js) | Folds numeric and boolean constants and literal parts of interpolated strings, removes dead branches and `while false` loops |
 | Generate | [`src/generator.js`](src/generator.js) | Emits indented JavaScript, suffixes names so they never clash with reserved words, lowers tasks to blocks |
