@@ -21,7 +21,8 @@
     "test:only": "node --test test/*.test.js",
     "check:repo": "bash scripts/check-repo.sh",
     "build:playground": "node scripts/build-playground.mjs",
-    "check": "npm run check:repo && node scripts/build-playground.mjs --check && npm test",
+    "lint": "eslint .",
+    "check": "npm run check:repo && npm run lint && node scripts/build-playground.mjs --check && npm test",
     "compile": "node src/cloudscribe.js"
   },
   "keywords": [
@@ -51,5 +52,8 @@
   "dependencies": {
     "graph-stringify": "^1.1.0",
     "ohm-js": "^17.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.15.0"
   }
 }
