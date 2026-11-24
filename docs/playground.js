@@ -2,6 +2,7 @@
 // browser copy of the compiler (docs/playground/, built by
 // scripts/build-playground.mjs) and runs the output in a worker.
 import compile from "./playground/compiler.js"
+import { diagnosticsFromError, offsetOf, rangesForDiagnostics } from "./diagnostics.js"
 import { MAX_SHARED_LENGTH, hashForProgram, programFromHash } from "./share.js"
 
 const source = document.getElementById("source")
@@ -12,6 +13,8 @@ const example = document.getElementById("example")
 const runButton = document.getElementById("run")
 const shareButton = document.getElementById("share")
 const shareStatus = document.getElementById("share-status")
+const mirror = document.getElementById("mirror")
+const problems = document.getElementById("problems")
 const stageButtons = [...document.querySelectorAll(".stage")]
 
 let stage = "js"
@@ -81,6 +84,52 @@ function printTree(tree) {
   }, 2)
 }
 
+// Repeats the source in the mirror behind the editor with the error words
+// underlined. The text goes in as text nodes, never as markup.
+function paintMirror(ranges) {
+  const text = source.value
+  const parts = []
+  let at = 0
+  for (const { start, end } of ranges) {
+    parts.push(text.slice(at, start))
+    const mark = document.createElement("span")
+    mark.className = "squiggle"
+    mark.textContent = text.slice(start, end)
+    parts.push(mark)
+    at = end
+  }
+  // The trailing newline keeps the mirror as tall as the textarea.
+  parts.push(`${text.slice(at)}\n`)
+  mirror.replaceChildren(...parts)
+  syncScroll()
+}
+
+function syncScroll() {
+  mirror.scrollTop = source.scrollTop
+  mirror.scrollLeft = source.scrollLeft
+}
+
+// Lists each problem as a button that puts the cursor at its position.
+function showProblems(found) {
+  problems.replaceChildren(...found.map(({ line, column, text }) => {
+    const item = document.createElement("li")
+    const button = document.createElement("button")
+    button.type = "button"
+    const where = document.createElement("span")
+    where.className = "where"
+    where.textContent = `Line ${line}, col ${column}`
+    button.append(where, ` ${text}`)
+    button.addEventListener("click", () => {
+      const offset = offsetOf(source.value, line, column)
+      source.focus()
+      source.setSelectionRange(offset, offset)
+    })
+    item.append(button)
+    return item
+  }))
+  problems.hidden = found.length === 0
+}
+
 function compileNow() {
   const text = source.value
   const started = performance.now()
@@ -93,11 +142,18 @@ function compileNow() {
     status.textContent = `Compiled in ${ms} ms`
     status.className = "mono status-ok"
     runButton.disabled = false
+    paintMirror([])
+    showProblems([])
   } catch (error) {
     lastJs = null
     output.textContent = error.message
     output.classList.add("status-fault")
-    status.textContent = "Not compiled: fix the error to see the output"
+    const found = diagnosticsFromError(error)
+    paintMirror(rangesForDiagnostics(text, found))
+    showProblems(found)
+    status.textContent = found.length > 1
+      ? `Not compiled: ${found.length} errors. Fix them to see the output`
+      : "Not compiled: fix the error to see the output"
     status.className = "mono status-fault"
     runButton.disabled = true
   }
@@ -167,6 +223,7 @@ source.addEventListener("keydown", (event) => {
   if (event.key === "Escape") source.dataset.escaped = "1"
   else if (event.key !== "Tab") delete source.dataset.escaped
 })
+source.addEventListener("scroll", syncScroll)
 source.addEventListener("blur", () => delete source.dataset.escaped)
 example.addEventListener("change", () => loadExample(example.value))
 runButton.addEventListener("click", runNow)
