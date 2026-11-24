@@ -24,9 +24,13 @@ describe("The docs site", () => {
     assert.throws(() => compile(example("broken"), "js"), /Line 10, col 18:[\s\S]*Expected argument 1 of type int, got string/)
   })
 
+  it("has a syntax error example that reports more than one error", () => {
+    assert.throws(() => compile(example("syntax"), "js"), error => error.diagnostics?.length === 2)
+  })
+
   it("has an example for every option in the playground menu", () => {
     const options = [...html.matchAll(/<option value="([^"]+)">/g)].map(m => m[1])
-    assert.deepEqual(options, ["health", "disk", "fold", "config", "broken"])
+    assert.deepEqual(options, ["health", "disk", "fold", "config", "broken", "syntax"])
     for (const id of options) assert.ok(example(id).length > 0, id)
     for (const [, id] of html.matchAll(/data-open-example="([^"]+)"/g)) assert.ok(options.includes(id), id)
   })

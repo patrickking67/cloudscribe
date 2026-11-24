@@ -70,6 +70,7 @@
             <option value="fold">Constant folding</option>
             <option value="config">Read config from env</option>
             <option value="broken">A type error</option>
+            <option value="syntax">Several syntax errors</option>
           </select>
           <div class="push">
             <span id="share-status" class="small muted" role="status"></span>
@@ -80,7 +81,10 @@
         <div class="panes">
           <div class="pane">
             <div class="pane-head"><label for="source">CloudScribe source</label></div>
-            <textarea id="source" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+            <div class="editor-wrap">
+              <pre id="mirror" class="editor mirror" aria-hidden="true"></pre>
+              <textarea id="source" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="problems"></textarea>
+            </div>
           </div>
           <div class="pane">
             <div class="pane-head tabs" role="group" aria-label="Compiler stage to show">
@@ -93,6 +97,7 @@
         </div>
         <div class="result">
           <p id="status" class="mono" role="status">Compiling in your browser.</p>
+          <ul id="problems" class="problems" aria-label="Problems in the source" hidden></ul>
           <pre id="console" aria-label="Program output" hidden></pre>
         </div>
       </div>
@@ -266,7 +271,7 @@ Expected argument 1 of type int, got string</code></pre>
         <p class="muted measure">One command, <code>npm run check</code>, runs everything locally and in CI. The numbers below come from that command and a test fails if the test count here goes stale.</p>
         <dl class="facts">
           <div>
-            <dt>305 tests</dt>
+            <dt>314 tests</dt>
             <dd>One suite per compiler stage, plus the CLI, built-ins, examples, playground and this site. Node's built-in runner, no test framework.</dd>
           </div>
           <div>
@@ -401,6 +406,23 @@ task checkConfig {
   print("Config size: " + text.length + " characters");
 }
 </script>
+  <script type="text/plain" id="example-syntax">// Each broken statement is reported, and the rest of the file is still checked.
+const LIMIT = ;
+
+function overLimit(used: int): boolean {
+  return used > LIMIT
+}
+
+task diskCheck {
+  let usage = [42, 91, 67];
+  for used in usage {
+    if overLimit(used) {
+      print("${used}% is over the limit");
+    }
+  }
+}
+</script>
+
   <script type="text/plain" id="example-broken">const LIMIT = 80;
 
 function overLimit(used: int): boolean {
