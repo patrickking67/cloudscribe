@@ -20,14 +20,16 @@ const ohmVersion = JSON.parse(read("node_modules/ohm-js/package.json")).version
 
 const parser = `${header("src/parser.js and src/cloudscribe.ohm")}
 // Load ohm.min.js (ohm-js ${ohmVersion}) with a classic script tag before this module.
+import { parseAll, syntaxError } from "./recover.js"
+
 const ohm = globalThis.ohm
 if (!ohm?.grammar) throw new Error("The CloudScribe playground needs ohm.min.js loaded first")
 
 const grammar = ohm.grammar(${JSON.stringify(read("src/cloudscribe.ohm"))})
 
 export default function parse(sourceCode) {
-  const match = grammar.match(sourceCode)
-  if (!match.succeeded()) throw new Error(match.message)
+  const { match, errors } = parseAll(grammar, sourceCode)
+  if (errors.length > 0) throw syntaxError(errors)
   return match
 }
 `
@@ -37,7 +39,7 @@ const files = {
   "ohm.min.js": read("node_modules/ohm-js/dist/ohm.min.js"),
   "ohm-LICENSE.txt": read("node_modules/ohm-js/LICENSE")
 }
-for (const stage of ["compiler", "analyzer", "optimizer", "generator", "core"]) {
+for (const stage of ["compiler", "recover", "analyzer", "optimizer", "generator", "core"]) {
   files[`${stage}.js`] = header(`src/${stage}.js`) + read(`src/${stage}.js`)
 }
 
