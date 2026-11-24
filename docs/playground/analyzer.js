@@ -65,11 +65,11 @@ export default function analyze(match) {
   }
 
   function mustHaveBooleanType(e, at) {
-    must(e.type === core.booleanType, "Expected a boolean", at)
+    must(e.type === core.booleanType, `Expected a boolean, got ${describeValue(e)}`, at)
   }
 
   function mustHaveIntType(e, at) {
-    must(e.type === core.intType, "Expected an integer", at)
+    must(e.type === core.intType, `Expected an integer, got ${describeValue(e)}`, at)
   }
 
   function typeDescription(type) {
@@ -80,6 +80,11 @@ export default function analyze(match) {
       return `(${params}) -> ${typeDescription(type.returnType)}`
     }
     return String(type)
+  }
+
+  /** Describes an expression for an error message, such as `string` or `task backup`. */
+  function describeValue(e) {
+    return e?.kind === "Task" ? `task ${e.name}` : typeDescription(e?.type)
   }
 
   function sameType(left, right) {
@@ -108,7 +113,8 @@ export default function analyze(match) {
   }
 
   function mustBeMutable(e, at) {
-    must(e.mutable !== false, "Cannot assign to immutable variable", at)
+    const name = e.name ? ` ${e.name}` : ""
+    must(e.mutable !== false, `Cannot assign to immutable variable${name}`, at)
   }
 
   function mustBeInLoop(at) {
@@ -120,12 +126,12 @@ export default function analyze(match) {
   }
 
   function mustBeAnArray(e, at) {
-    must(e.type?.kind === "ArrayType", "Expected an array", at)
+    must(e.type?.kind === "ArrayType", `Expected an array, got ${describeValue(e)}`, at)
   }
 
   function mustBeCallable(entity, at) {
-    must(entity?.kind === "Function" || entity?.type?.kind === "FunctionType", 
-      "Expected a function", at)
+    must(entity?.kind === "Function" || entity?.type?.kind === "FunctionType",
+      `Expected a function, got ${describeValue(entity)}`, at)
   }
 
   function mustHaveCorrectArgumentCount(callee, args, at) {
@@ -144,7 +150,7 @@ export default function analyze(match) {
   function mustBeInterpolatable(e, at) {
     const allowed = [core.intType, core.stringType, core.booleanType, core.anyType]
     if (allowed.includes(e.type)) return
-    const got = e.kind === "Task" ? `task ${e.name}` : typeDescription(e.type)
+    const got = describeValue(e)
     const hint = e.type?.kind === "OptionalType" ? "; use ?? to give a fallback" : ""
     must(false, `Expected an int, string or boolean in interpolation, got ${got}${hint}`, at)
   }
