@@ -6,7 +6,7 @@ CloudScribe is a statically typed scripting language for IT automation. A five-s
 
 - Node.js 20 or later, ES modules, no build step for the compiler.
 - Runtime dependencies: `ohm-js` (grammar and parser), `graph-stringify` (AST printing). Respect `package-lock.json`; install with `npm ci`.
-- Tests: the built-in `node:test` runner with native coverage. No linter or type checker is configured.
+- Tests: the built-in `node:test` runner with native coverage. Lint: ESLint (the one dev dependency, rules in `eslint.config.js`, bug-finding rules only, no formatter). No type checker.
 - Site: static `docs/index.html`, hand-written `docs/site.css` and `docs/playground.js`, deployed to GitHub Pages from `docs/`. No CSS framework, no third-party scripts, no build step.
 
 ## Commands
@@ -18,6 +18,7 @@ CloudScribe is a statically typed scripting language for IT automation. A five-s
 | Tests with coverage of `src/` | `npm test` |
 | Tests without coverage | `npm run test:only` |
 | One test file | `node --test test/analyzer.test.js` |
+| Lint | `npm run lint` |
 | Repository conventions | `npm run check:repo` |
 | Rebuild the playground copy | `npm run build:playground` |
 | Type-check a file | `npx cloudscribe file.csc --check` |
@@ -27,7 +28,7 @@ CloudScribe is a statically typed scripting language for IT automation. A five-s
 
 `.claude/launch.json` defines the same preview server as `cloudscribe-site` on port 4101.
 
-`npm run check` runs `scripts/check-repo.sh`, `scripts/build-playground.mjs --check` and `npm test`. It must pass before you call any change done.
+`npm run check` runs `scripts/check-repo.sh`, `npm run lint`, `scripts/build-playground.mjs --check` and `npm test`. It must pass before you call any change done.
 
 ## Layout
 

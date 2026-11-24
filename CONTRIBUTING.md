@@ -13,7 +13,7 @@ npm ci
 npm run check
 ```
 
-`npm run check` runs everything CI runs: repository convention checks, a check that the playground copy of the compiler is current, and the test suite with coverage.
+`npm run check` runs everything CI runs: repository convention checks, ESLint (`npm run lint`, which needs Node 20.19 or later), a check that the playground copy of the compiler is current, and the test suite with coverage.
 
 ## Branches
 
