@@ -24,6 +24,7 @@ Planned as 1.2.0. `package.json` is at 1.2.0.
 
 ### Changed
 
+- `npm run lint` runs ESLint 10 with a short list of bug-finding rules (no style rules, no preset). It is the only dev dependency and is part of `npm run check`. Contributors need Node 20.19 or later for it; the compiler itself still runs on Node 20.0 and later. It removed one unused import from `src/generator.js`.
 - Type errors name what was found: `Expected a boolean, got int`, `Expected a function, got int`, and `Cannot assign to immutable variable x`.
 - An undeclared identifier close to a visible name gets a hint: `Identifier cuont not declared. Did you mean count?`.
 - `${` inside a string literal now starts an interpolation. A string that meant a literal `${` must write `\${`, and an unclosed `${` is a syntax error.

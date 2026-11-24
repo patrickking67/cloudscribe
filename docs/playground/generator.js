@@ -3,7 +3,6 @@
  * Code generator: transpiles the optimized CloudScribe IR into JavaScript.
  * @module generator
  */
-import { voidType } from "./core.js"
 
 /**
  * Runtime support for the built-in functions other than print. Each entry is

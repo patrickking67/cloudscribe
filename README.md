@@ -180,7 +180,7 @@ Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file t
 | Supply chain | 2 runtime dependencies, lockfile respected, weekly Dependabot updates, [private vulnerability reporting](SECURITY.md) |
 
 ```bash
-npm run check        # everything CI runs: repo checks, playground freshness, tests
+npm run check        # everything CI runs: repo checks, lint, playground freshness, tests
 npm test             # tests with the coverage report for src/
 npm run test:only    # same tests, no coverage
 ```
