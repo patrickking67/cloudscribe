@@ -21,6 +21,8 @@ Planned as 1.2.0. `package.json` is at 1.2.0.
 
 ### Changed
 
+- Type errors name what was found: `Expected a boolean, got int`, `Expected a function, got int`, and `Cannot assign to immutable variable x`.
+- An undeclared identifier close to a visible name gets a hint: `Identifier cuont not declared. Did you mean count?`.
 - `${` inside a string literal now starts an interpolation. A string that meant a literal `${` must write `\${`, and an unclosed `${` is a syntax error.
 - Generated JavaScript is indented two spaces per block level instead of starting every line in column one.
 - The site uses a hand-written stylesheet (`docs/site.css`) instead of the Tailwind CDN script, so it loads no third-party scripts and the browser console is clean.
