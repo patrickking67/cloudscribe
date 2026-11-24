@@ -266,12 +266,12 @@ Expected argument 1 of type int, got string</code></pre>
         <p class="muted measure">One command, <code>npm run check</code>, runs everything locally and in CI. The numbers below come from that command and a test fails if the test count here goes stale.</p>
         <dl class="facts">
           <div>
-            <dt>287 tests</dt>
+            <dt>291 tests</dt>
             <dd>One suite per compiler stage, plus the CLI, built-ins, examples, playground and this site. Node's built-in runner, no test framework.</dd>
           </div>
           <div>
-            <dt>99.2% line coverage</dt>
-            <dd>Of <code>src/</code>, measured by Node's native coverage on Node 24. Branch coverage is 95.5%.</dd>
+            <dt>98.9% line coverage</dt>
+            <dd>Of <code>src/</code>, measured by Node's native coverage on Node 24. Branch coverage is 95.2%.</dd>
           </div>
           <div>
             <dt>Node 20, 22 and 24</dt>
@@ -305,6 +305,7 @@ npm link
 
 cloudscribe examples/config_check.csc --check
 cloudscribe examples/config_check.csc --run
+cloudscribe examples/config_check.csc --check --watch
 cloudscribe examples/config_check.csc --out check.mjs</code></pre>
       </div>
     </section>

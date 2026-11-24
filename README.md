@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml"><img src="https://github.com/patrickking67/cloudscribe/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="#quality"><img src="https://img.shields.io/badge/tests-287%20passing-brightgreen.svg" alt="287 tests passing"></a>
+  <a href="#quality"><img src="https://img.shields.io/badge/tests-291%20passing-brightgreen.svg" alt="291 tests passing"></a>
   <a href="https://patrickking67.github.io/cloudscribe/"><img src="https://img.shields.io/badge/playground-live-6366f1.svg" alt="Live playground"></a>
 </p>
 
@@ -151,6 +151,7 @@ The full rules, the operator table and every diagnostic are in the [language spe
 cloudscribe <file.csc> [stage] [--out <file>]
 cloudscribe <file.csc> --check
 cloudscribe <file.csc> --run [--out <file>]
+cloudscribe <file.csc> [--check | --run | stage] --watch
 ```
 
 | Option or stage | Result |
@@ -162,6 +163,7 @@ cloudscribe <file.csc> --run [--out <file>]
 | `--check` | Type-checks without generating code and prints `<file>: ok` |
 | `--run` | Compiles and runs the program with Node.js in the current directory |
 | `--out <file>` | Writes the output to a file (with `--run`, keeps the compiled file) |
+| `--watch`, `-w` | Repeats the command every time the file is saved. Press Ctrl+C to stop |
 
 Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file that cannot be read or written. With `--run`, the exit code is the program's own.
 
@@ -169,8 +171,8 @@ Exit codes: `0` success, `1` syntax or type error, `2` bad arguments or a file t
 
 | Signal | Current state |
 |--------|---------------|
-| Tests | 287 tests in 11 files on Node's built-in runner. [`scripts/test.mjs`](scripts/test.mjs) fails if this number goes stale |
-| Coverage of `src/` | 99.2% of lines, 95.5% of branches (Node's native coverage, Node 24) |
+| Tests | 291 tests in 11 files on Node's built-in runner. [`scripts/test.mjs`](scripts/test.mjs) fails if this number goes stale |
+| Coverage of `src/` | 98.9% of lines, 95.2% of branches (Node's native coverage, Node 24) |
 | CI | `npm run check` on Node 20, 22 and 24 for every push and pull request, with read-only permissions |
 | Examples | 10 programs compiled, run and compared with expected output |
 | Playground | Browser copy of the compiler checked against `src/` on every run |

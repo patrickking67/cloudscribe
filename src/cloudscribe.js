@@ -8,7 +8,7 @@
 
 import * as fs from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import stringify from "graph-stringify";
 import compile from "./compiler.js";
@@ -26,6 +26,7 @@ Usage:
   cloudscribe <file.csc> [stage] [--out <file>]
   cloudscribe <file.csc> --check
   cloudscribe <file.csc> --run
+  cloudscribe <file.csc> [--check | --run | stage] --watch
   cloudscribe --help | --version
 
 Stages (default js):
@@ -38,6 +39,7 @@ Options:
   --check       Type-check without generating code
   --run         Compile and run the program with Node.js
   --out <file>  Write the output to a file instead of stdout
+  --watch       Run again every time the file changes. Press Ctrl+C to stop
 
 Exit codes:
   0  success
@@ -50,6 +52,7 @@ Examples:
   cloudscribe deploy.csc --check
   cloudscribe deploy.csc --out deploy.mjs
   cloudscribe deploy.csc --run
+  cloudscribe deploy.csc --check --watch
 `;
 
 class UsageError extends Error {}
@@ -60,13 +63,14 @@ function printError(message) {
 }
 
 function parseArgs(argv) {
-  const options = { positionals: [], check: false, run: false, out: undefined, help: false, version: false };
+  const options = { positionals: [], check: false, run: false, watch: false, out: undefined, help: false, version: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--help" || arg === "-h") options.help = true;
     else if (arg === "--version" || arg === "-v") options.version = true;
     else if (arg === "--check") options.check = true;
     else if (arg === "--run") options.run = true;
+    else if (arg === "--watch" || arg === "-w") options.watch = true;
     else if (arg === "--out") {
       const value = argv[++i];
       if (value === undefined || value.startsWith("--")) throw new UsageError("--out needs a filename");
@@ -121,17 +125,8 @@ function runProgram(js, outFilename) {
   }
 }
 
-function main(argv) {
-  const options = parseArgs(argv);
-  if (options.version) {
-    console.log(VERSION);
-    return EXIT.ok;
-  }
-  if (options.help) {
-    console.log(help);
-    return EXIT.ok;
-  }
-
+// Compiles the file once, according to the options, and returns the exit code.
+function build(options) {
   const source = readSource(options.filename);
   let compiled;
   try {
@@ -155,6 +150,61 @@ function main(argv) {
     console.log(output);
   }
   return EXIT.ok;
+}
+
+// Rebuilds whenever the file changes. The directory is watched instead of the
+// file because many editors save by replacing the file, which ends a file watch.
+// Changes are debounced so one save does not trigger several builds.
+function watch(options) {
+  const absolute = resolve(options.filename);
+  const stamp = () => new Date().toTimeString().slice(0, 8);
+  const rebuild = () => {
+    console.log(`[${stamp()}] ${options.filename}`);
+    build(options);
+    console.log("Watching for changes. Press Ctrl+C to stop.");
+  };
+  let timer;
+  const watcher = fs.watch(dirname(absolute), (_event, changed) => {
+    if (changed && changed !== basename(absolute)) return;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      try {
+        rebuild();
+      } catch (e) {
+        if (!(e instanceof UsageError)) throw e;
+        printError(`error: ${e.message}`);
+      }
+    }, 50);
+  });
+  process.on("SIGINT", () => {
+    watcher.close();
+    process.exit(EXIT.ok);
+  });
+  // The watcher exists before the first build so a save during it is not missed.
+  try {
+    rebuild();
+  } catch (e) {
+    watcher.close();
+    throw e;
+  }
+}
+
+function main(argv) {
+  const options = parseArgs(argv);
+  if (options.version) {
+    console.log(VERSION);
+    return EXIT.ok;
+  }
+  if (options.help) {
+    console.log(help);
+    return EXIT.ok;
+  }
+  if (options.watch) {
+    readSource(options.filename);
+    watch(options);
+    return undefined;
+  }
+  return build(options);
 }
 
 try {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import test from "node:test";
 
 const cli = new URL("../src/cloudscribe.js", import.meta.url);
@@ -156,4 +156,79 @@ test("CLI rejects bad arguments with exit code 2", () => {
     assert.equal(result.status, 2, args.join(" "));
     assert.match(result.stderr, message);
   }
+});
+
+// Starts the CLI in watch mode and resolves helpers for waiting on its output.
+function startWatch(args) {
+  const child = spawn(process.execPath, [cli.pathname, ...args], { stdio: ["ignore", "pipe", "pipe"] });
+  let stdout = "";
+  let stderr = "";
+  child.stdout.on("data", chunk => (stdout += chunk));
+  child.stderr.on("data", chunk => (stderr += chunk));
+  const waitFor = (pattern, timeoutMs = 10000) =>
+    new Promise((resolve, reject) => {
+      const started = Date.now();
+      const poll = setInterval(() => {
+        const found = pattern.test(stdout) || pattern.test(stderr);
+        if (found) {
+          clearInterval(poll);
+          resolve();
+        } else if (Date.now() - started > timeoutMs) {
+          clearInterval(poll);
+          reject(new Error(`Timed out waiting for ${pattern}. stdout: ${stdout} stderr: ${stderr}`));
+        }
+      }, 25);
+    });
+  const stop = () =>
+    new Promise(resolve => {
+      child.once("close", (code, signal) => resolve({ code, signal }));
+      child.kill("SIGINT");
+    });
+  return { waitFor, stop, output: () => ({ stdout, stderr }) };
+}
+
+test("CLI --watch checks once, then again after each change", async () => {
+  const { file } = sourceFile("let x = 1;\n");
+  const watcher = startWatch([file, "--check", "--watch"]);
+  try {
+    await watcher.waitFor(/program\.csc: ok[\s\S]*Watching for changes/);
+    writeFileSync(file, "let x = true + 1;\n");
+    await watcher.waitFor(/error: .*program\.csc/);
+    writeFileSync(file, "let y = 2;\n");
+    await watcher.waitFor(/: ok[\s\S]*: ok/);
+  } finally {
+    const { code } = await watcher.stop();
+    assert.equal(code, 0);
+  }
+});
+
+test("CLI --watch with --run runs the program again after a change", async () => {
+  const { file } = sourceFile('print("first");\n');
+  const watcher = startWatch([file, "--run", "--watch"]);
+  try {
+    await watcher.waitFor(/first/);
+    writeFileSync(file, 'print("second");\n');
+    await watcher.waitFor(/second/);
+  } finally {
+    await watcher.stop();
+  }
+});
+
+test("CLI --watch ignores other files in the same directory", async () => {
+  const { directory, file } = sourceFile("let x = 1;\n");
+  const watcher = startWatch([file, "--check", "--watch"]);
+  try {
+    await watcher.waitFor(/Watching for changes/);
+    writeFileSync(join(directory, "notes.txt"), "unrelated");
+    await new Promise(resolve => setTimeout(resolve, 400));
+    assert.equal(watcher.output().stdout.match(/program\.csc: ok/g).length, 1);
+  } finally {
+    await watcher.stop();
+  }
+});
+
+test("CLI --watch needs a readable file", () => {
+  const result = run(["/nonexistent/program.csc", "--watch"]);
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /file not found/);
 });
