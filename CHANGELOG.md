@@ -8,6 +8,7 @@ Planned as 1.2.0. `package.json` is at 1.2.0.
 
 ### Added
 
+- Playground: errors are underlined in the editor, listed under the output with their line and column (click one to move the cursor there), and a new example shows several syntax errors at once. The position logic is in `docs/diagnostics.js` and is tested in Node.
 - Syntax error recovery: the parser reports up to 10 syntax errors in one run instead of stopping at the first. A single error prints exactly as before. Each error carries its line and column in `error.diagnostics` for editors and the playground.
 - `--watch` (`-w`) on the CLI: type-check, compile or run again every time the file is saved. Errors are printed and watching continues.
 - String interpolation: `"host ${name} returned ${code}"`. Each embedded expression is type-checked and must be an `int`, `string` or `boolean`; an optional gets a hint to add a `??` fallback. It compiles to a JavaScript template literal, and the optimizer moves literal parts into the text.

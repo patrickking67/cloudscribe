@@ -35,6 +35,7 @@ CloudScribe is a statically typed scripting language for IT automation. A five-s
 |------|---------|
 | `src/cloudscribe.ohm` | PEG grammar |
 | `src/parser.js` | Matches source against the grammar, throws syntax errors |
+| `src/recover.js` | Finds more than one syntax error per run by blanking the broken statement and parsing again |
 | `src/analyzer.js` | Scopes, type inference and checks, builds the typed AST |
 | `src/optimizer.js` | Constant folding and dead branch removal |
 | `src/generator.js` | Emits JavaScript and the runtime support for built-ins |
@@ -45,6 +46,7 @@ CloudScribe is a statically typed scripting language for IT automation. A five-s
 | `test/fixtures/examples/*.out` | Expected stdout for each file in `examples/` |
 | `examples/*.csc` | Sample programs, all compiled and run by the tests |
 | `docs/index.html`, `docs/site.css`, `docs/playground.js` | Project site and playground. Colors are CSS variables with a light and a dark set |
+| `docs/diagnostics.js` | Turns compile errors into editor positions for the playground. Pure functions, tested in Node |
 | `docs/share.js` | Encodes and decodes playground share links (`#code=`). Pure functions, tested in Node |
 | `docs/playground/` | Generated browser copy of the compiler. Do not edit by hand |
 | `docs/language-spec.md` | Language contract |
