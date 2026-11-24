@@ -9,6 +9,32 @@ import * as core from "./core.js"
 /** Type names that may appear in annotations such as `x: int`. */
 const BUILT_IN_TYPES = [core.intType, core.stringType, core.booleanType]
 
+/** Number of single-character edits needed to turn one string into another. */
+function editDistance(a, b) {
+  let previous = Array.from({ length: b.length + 1 }, (_, j) => j)
+  for (let i = 1; i <= a.length; i++) {
+    const current = [i]
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost)
+    }
+    previous = current
+  }
+  return previous[b.length]
+}
+
+/** Picks the visible name closest to a misspelled one, or undefined if none is near. */
+function closestName(name, candidates) {
+  const limit = name.length <= 3 ? 1 : 2
+  let best
+  let bestDistance = limit + 1
+  for (const candidate of candidates) {
+    const distance = editDistance(name.toLowerCase(), candidate.toLowerCase())
+    if (distance < bestDistance) [best, bestDistance] = [candidate, distance]
+  }
+  return best
+}
+
 /** Scoping context that tracks local bindings, loop/function nesting, and parent scopes. */
 class Context {
   constructor({
@@ -27,6 +53,11 @@ class Context {
 
   lookup(name) {
     return this.locals.get(name) || this.parent?.lookup(name)
+  }
+
+  /** Every name visible from this scope, including enclosing scopes. */
+  visibleNames() {
+    return [...this.locals.keys(), ...(this.parent?.visibleNames() ?? [])]
   }
 
   static root() {
@@ -60,15 +91,18 @@ export default function analyze(match) {
   }
 
   function mustHaveBeenFound(entity, name, at) {
-    must(entity, `Identifier ${name} not declared`, at)
+    if (entity) return
+    const suggestion = closestName(name, context.visibleNames())
+    const hint = suggestion ? `. Did you mean ${suggestion}?` : ""
+    must(false, `Identifier ${name} not declared${hint}`, at)
   }
 
   function mustHaveBooleanType(e, at) {
-    must(e.type === core.booleanType, "Expected a boolean", at)
+    must(e.type === core.booleanType, `Expected a boolean, got ${describeValue(e)}`, at)
   }
 
   function mustHaveIntType(e, at) {
-    must(e.type === core.intType, "Expected an integer", at)
+    must(e.type === core.intType, `Expected an integer, got ${describeValue(e)}`, at)
   }
 
   function typeDescription(type) {
@@ -79,6 +113,11 @@ export default function analyze(match) {
       return `(${params}) -> ${typeDescription(type.returnType)}`
     }
     return String(type)
+  }
+
+  /** Describes an expression for an error message, such as `string` or `task backup`. */
+  function describeValue(e) {
+    return e?.kind === "Task" ? `task ${e.name}` : typeDescription(e?.type)
   }
 
   function sameType(left, right) {
@@ -107,7 +146,8 @@ export default function analyze(match) {
   }
 
   function mustBeMutable(e, at) {
-    must(e.mutable !== false, "Cannot assign to immutable variable", at)
+    const name = e.name ? ` ${e.name}` : ""
+    must(e.mutable !== false, `Cannot assign to immutable variable${name}`, at)
   }
 
   function mustBeInLoop(at) {
@@ -119,12 +159,12 @@ export default function analyze(match) {
   }
 
   function mustBeAnArray(e, at) {
-    must(e.type?.kind === "ArrayType", "Expected an array", at)
+    must(e.type?.kind === "ArrayType", `Expected an array, got ${describeValue(e)}`, at)
   }
 
   function mustBeCallable(entity, at) {
-    must(entity?.kind === "Function" || entity?.type?.kind === "FunctionType", 
-      "Expected a function", at)
+    must(entity?.kind === "Function" || entity?.type?.kind === "FunctionType",
+      `Expected a function, got ${describeValue(entity)}`, at)
   }
 
   function mustHaveCorrectArgumentCount(callee, args, at) {
@@ -143,7 +183,7 @@ export default function analyze(match) {
   function mustBeInterpolatable(e, at) {
     const allowed = [core.intType, core.stringType, core.booleanType, core.anyType]
     if (allowed.includes(e.type)) return
-    const got = e.kind === "Task" ? `task ${e.name}` : typeDescription(e.type)
+    const got = describeValue(e)
     const hint = e.type?.kind === "OptionalType" ? "; use ?? to give a fallback" : ""
     must(false, `Expected an int, string or boolean in interpolation, got ${got}${hint}`, at)
   }
